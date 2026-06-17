@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Soul Genia">
+  <rect width="64" height="64" rx="12" fill="#171813"/>
+  <path d="M32 10c2.6 10.2 6.8 14.4 17 17-10.2 2.6-14.4 6.8-17 17-2.6-10.2-6.8-14.4-17-17 10.2-2.6 14.4-6.8 17-17Z" fill="#d6b25c"/>
+  <circle cx="46" cy="45" r="5" fill="#7fa06a"/>
+</svg>

@@ -1,0 +1,63 @@
+services:
+  landing:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://soulgenia.com.br}
+        NEXT_PUBLIC_WHATSAPP_URL: ${NEXT_PUBLIC_WHATSAPP_URL:-}
+        NEXT_PUBLIC_POSTHOG_KEY: ${NEXT_PUBLIC_POSTHOG_KEY:-}
+        NEXT_PUBLIC_POSTHOG_HOST: ${NEXT_PUBLIC_POSTHOG_HOST:-https://app.posthog.com}
+        NEXT_PUBLIC_META_PIXEL_ID: ${NEXT_PUBLIC_META_PIXEL_ID:-}
+    container_name: soul_genia_landing
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgres://soul_genia:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in the deploy .env}@postgres:5432/soul_genia_landing}
+      DATABASE_SSL: ${DATABASE_SSL:-false}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-noreply@soulgenia.com.br}
+      RESEND_NOTIFY_EMAIL: ${RESEND_NOTIFY_EMAIL:-soulgenia@gmail.com}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      POSTHOG_KEY: ${POSTHOG_KEY:-}
+      NODE_ENV: production
+    ports:
+      - "127.0.0.1:3202:3000"
+    networks:
+      - soul-genia-private
+      - vps-shared
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: soul_genia_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: soul_genia
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in the deploy .env}
+      POSTGRES_DB: soul_genia_landing
+    volumes:
+      - soul-genia-postgres-data:/var/lib/postgresql/data
+    networks:
+      - soul-genia-private
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U soul_genia -d soul_genia_landing"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  soul-genia-private:
+    name: soul-genia-private
+  vps-shared:
+    external: true
+
+volumes:
+  soul-genia-postgres-data:
