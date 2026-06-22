@@ -132,12 +132,12 @@ export default async function BlogPostPage({ params }: PageProps) {
               <span className="text-white/88">{post.cluster}</span>
             </nav>
 
-            <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)] lg:items-end">
-              <div>
+            <div className="mt-12 grid min-w-0 gap-10 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)] lg:items-end">
+              <div className="min-w-0">
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#e6c668]">
                   {post.heroLabel}
                 </p>
-                <h1 className="mt-5 text-4xl font-display leading-[1.02] sm:text-6xl lg:text-7xl">
+                <h1 className="mt-5 max-w-full break-words text-4xl font-display leading-[1.02] [overflow-wrap:anywhere] sm:text-6xl lg:text-7xl">
                   {post.title}
                 </h1>
                 <p className="mt-7 max-w-3xl text-lg leading-8 text-white/74">
@@ -156,7 +156,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                 </div>
               </div>
 
-              <div className="overflow-hidden rounded-[1.5rem] border border-white/14 bg-white/8 p-3 shadow-[0_40px_120px_-58px_rgba(0,0,0,0.95)]">
+              <div className="min-w-0 overflow-hidden rounded-[1.5rem] border border-white/14 bg-white/8 p-3 shadow-[0_40px_120px_-58px_rgba(0,0,0,0.95)]">
                 <div className="relative aspect-[16/10] overflow-hidden rounded-[1.1rem]">
                   <Image
                     src={post.heroImage}
