@@ -5,6 +5,7 @@ import { buildRoutingTarget, scoreSoulGeniaLead } from "./scoring.js";
 import { createRepository, hashIp } from "./store.js";
 import { sendLeadEvent } from "./meta-capi.js";
 import { notifyNewLead } from "./notify.js";
+import { sendDiagnosticEmail } from "./send-email.js";
 
 export function createApp({ repository = createRepository(), env = process.env } = {}) {
   const app = express();
@@ -85,6 +86,23 @@ export function createApp({ repository = createRepository(), env = process.env }
         });
       }
 
+      // O diagnóstico personalizado, por e-mail. Fica DEPOIS de salvar: o lead
+      // já está seguro, e uma falha aqui custa um e-mail — nunca o lead.
+      // sendDiagnosticEmail NUNCA lança (contrato do módulo).
+      const email = await sendDiagnosticEmail({
+        env,
+        contact: payload.contact,
+        answers: payload.answers,
+        route: scoring.route,
+        waUrl: routingTarget
+      });
+      if (!email.sent) {
+        console.warn(
+          `[funil] lead ${saved.id}: DIAGNOSTICO NAO ENVIADO: ${email.reason}` +
+            (email.detail ? ` (${email.detail})` : "")
+        );
+      }
+
       // Aviso de lead novo. Fica DEPOIS de salvar de propósito: o lead já está
       // seguro no banco, então uma falha aqui custa um aviso — nunca o lead.
       // notifyNewLead NUNCA lança (contrato do módulo), mas o await fica dentro
@@ -95,7 +113,8 @@ export function createApp({ repository = createRepository(), env = process.env }
         score: scoring.score,
         contact: payload.contact,
         answers: payload.answers,
-        routingTarget
+        routingTarget,
+        emailEnviado: email.sent
       });
       if (!aviso.sent) {
         // Visível no log: um lead que entrou sem ninguém saber é exatamente o

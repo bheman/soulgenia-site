@@ -20,27 +20,46 @@ test("degrada sem quebrar quando faltam dados", () => {
 });
 
 // ---------------------------------------------------------------------------
-// O PONTO DO AVISO: dizer se ALGUÉM PRECISA AGIR.
+// O PONTO DO AVISO: dizer O QUE A PESSOA RECEBEU, para você saber se precisa agir.
 //
-// No ramo `nurture` a pessoa não recebe botão nem e-mail — se ninguém for
-// atrás, acabou ali. Um aviso que não distingue isso de um lead qualificado
-// (que ao menos recebeu o link do WhatsApp) não serve para nada às 2 da manhã.
+// `qualified_trial` sai com botão de WhatsApp; `nurture` não — o próximo passo
+// dela é só o e-mail do diagnóstico. Um aviso que não distingue os dois não
+// serve para nada às 2 da manhã.
 // ---------------------------------------------------------------------------
-test("nurture avisa EXPLICITAMENTE que a pessoa não recebeu nada", () => {
+test("nurture diz que o próximo passo dela é o e-mail, e que quem puxa é você", () => {
   const m = buildLeadMessage({ route: "nurture", score: 7, contact: contato, answers: {} });
-  assert.match(m, /NÃO RECEBEU NADA/);
-  assert.match(m, /acabou aqui/);
+  assert.match(m, /Sem botão de WhatsApp/);
+  assert.match(m, /e-mail do diagnóstico/);
 });
 
-test("qualificado NÃO carrega o alarme de nurture", () => {
+test("qualificado avisa que ela recebeu o botão", () => {
   const m = buildLeadMessage({ route: "qualified_trial", score: 12, contact: contato, answers: {} });
-  assert.doesNotMatch(m, /NÃO RECEBEU NADA/);
   assert.match(m, /recebeu o botão/);
+  assert.doesNotMatch(m, /Sem botão/);
 });
 
-test("waitlist também avisa que não há próximo passo do lado dela", () => {
-  const m = buildLeadMessage({ route: "waitlist_poor_fit", score: 2, contact: contato, answers: {} });
-  assert.match(m, /Sem próximo passo/);
+// ---------------------------------------------------------------------------
+// O CAMPO QUE MAIS IMPORTA DESDE QUE O E-MAIL PASSOU A SAIR.
+// Se o diagnóstico NÃO foi entregue, a pessoa ficou sem nada mesmo — e isso
+// muda o que o Bruno precisa fazer. Um aviso que não distingue é inútil.
+// ---------------------------------------------------------------------------
+test("e-mail que FALHOU aparece em vermelho no aviso", () => {
+  const m = buildLeadMessage({ route: "nurture", score: 7, contact: contato, answers: {}, emailEnviado: false });
+  assert.match(m, /🔴/);
+  assert.match(m, /NÃO saiu/);
+  assert.match(m, /nem isso/);
+});
+
+test("e-mail entregue aparece como confirmado", () => {
+  const m = buildLeadMessage({ route: "nurture", score: 7, contact: contato, answers: {}, emailEnviado: true });
+  assert.match(m, /✅/);
+  assert.doesNotMatch(m, /NÃO saiu/);
+});
+
+test("sem informação sobre o e-mail, não inventa nenhum dos dois", () => {
+  const m = buildLeadMessage({ route: "nurture", score: 7, contact: contato, answers: {} });
+  assert.doesNotMatch(m, /🔴/);
+  assert.doesNotMatch(m, /✅/);
 });
 
 test("rota desconhecida não some em silêncio", () => {
