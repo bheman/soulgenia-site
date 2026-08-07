@@ -25,11 +25,6 @@ services:
       RESEND_NOTIFY_EMAIL: ${RESEND_NOTIFY_EMAIL:-soulgenia@gmail.com}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
-      # Diagnostico personalizado por e-mail. Conta Resend da SOUL GENIA, onde
-      # soulgenia.com.br esta verified (DKIM+SPF) — NAO e a conta da Soul Beta.
-      # Sem `:?`: vazio desliga o envio, o funil continua capturando.
-      RESEND_API_KEY: ${RESEND_API_KEY:-}
-      EMAIL_FROM: ${EMAIL_FROM:-Gênia <noreply@soulgenia.com.br>}
       POSTHOG_KEY: ${POSTHOG_KEY:-}
       NODE_ENV: production
     ports:
@@ -81,6 +76,11 @@ services:
       # faria o container inteiro recusar subir por causa de um aviso.
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      # Diagnostico personalizado por e-mail. Conta Resend da SOUL GENIA, onde
+      # soulgenia.com.br esta verified (DKIM+SPF) — NAO e a conta da Soul Beta.
+      # Sem `:?`: vazio desliga o envio, o funil continua capturando.
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-Gênia <noreply@soulgenia.com.br>}
     ports:
       - "127.0.0.1:3120:3109"
     networks:
