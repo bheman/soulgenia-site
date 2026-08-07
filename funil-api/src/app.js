@@ -4,6 +4,7 @@ import { getFunnelConfig, listFunnelConfigs } from "./config/index.js";
 import { buildRoutingTarget, scoreSoulGeniaLead } from "./scoring.js";
 import { createRepository, hashIp } from "./store.js";
 import { sendLeadEvent } from "./meta-capi.js";
+import { notifyNewLead } from "./notify.js";
 
 export function createApp({ repository = createRepository(), env = process.env } = {}) {
   const app = express();
@@ -73,6 +74,27 @@ export function createApp({ repository = createRepository(), env = process.env }
           reason: scoring.route,
           source_response_id: saved.id
         });
+      }
+
+      // Aviso de lead novo. Fica DEPOIS de salvar de propósito: o lead já está
+      // seguro no banco, então uma falha aqui custa um aviso — nunca o lead.
+      // notifyNewLead NUNCA lança (contrato do módulo), mas o await fica dentro
+      // do try do handler de qualquer forma.
+      const aviso = await notifyNewLead({
+        env,
+        route: scoring.route,
+        score: scoring.score,
+        contact: payload.contact,
+        answers: payload.answers,
+        routingTarget
+      });
+      if (!aviso.sent) {
+        // Visível no log: um lead que entrou sem ninguém saber é exatamente o
+        // problema que este módulo existe para acabar.
+        console.warn(
+          `[funil] lead ${saved.id} salvo mas AVISO NAO ENVIADO: ${aviso.reason}` +
+            (aviso.detail ? ` (${aviso.detail})` : "")
+        );
       }
 
       res.json({

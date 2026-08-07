@@ -1,0 +1,136 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { buildLeadMessage, notifyNewLead } from "../src/notify.js";
+
+const contato = { name: "Maria Silva Souza", whatsapp: "+55 (48) 99123-4567" };
+
+test("o aviso identifica a pessoa sem vazar o telefone inteiro", () => {
+  const m = buildLeadMessage({ route: "qualified_trial", score: 12, contact: contato, answers: {} });
+  assert.match(m, /Maria/);
+  assert.match(m, /…4567/);
+  // o número completo NÃO pode aparecer — o aviso serve para reconhecer, não para vazar
+  assert.doesNotMatch(m, /99123/);
+  assert.doesNotMatch(m, /5548/);
+});
+
+test("degrada sem quebrar quando faltam dados", () => {
+  const m = buildLeadMessage({ route: "nurture", score: 3, contact: {}, answers: {} });
+  assert.match(m, /sem nome/);
+  assert.match(m, /sem telefone/);
+});
+
+// ---------------------------------------------------------------------------
+// O PONTO DO AVISO: dizer se ALGUÉM PRECISA AGIR.
+//
+// No ramo `nurture` a pessoa não recebe botão nem e-mail — se ninguém for
+// atrás, acabou ali. Um aviso que não distingue isso de um lead qualificado
+// (que ao menos recebeu o link do WhatsApp) não serve para nada às 2 da manhã.
+// ---------------------------------------------------------------------------
+test("nurture avisa EXPLICITAMENTE que a pessoa não recebeu nada", () => {
+  const m = buildLeadMessage({ route: "nurture", score: 7, contact: contato, answers: {} });
+  assert.match(m, /NÃO RECEBEU NADA/);
+  assert.match(m, /acabou aqui/);
+});
+
+test("qualificado NÃO carrega o alarme de nurture", () => {
+  const m = buildLeadMessage({ route: "qualified_trial", score: 12, contact: contato, answers: {} });
+  assert.doesNotMatch(m, /NÃO RECEBEU NADA/);
+  assert.match(m, /recebeu o botão/);
+});
+
+test("waitlist também avisa que não há próximo passo do lado dela", () => {
+  const m = buildLeadMessage({ route: "waitlist_poor_fit", score: 2, contact: contato, answers: {} });
+  assert.match(m, /Sem próximo passo/);
+});
+
+test("rota desconhecida não some em silêncio", () => {
+  const m = buildLeadMessage({ route: "rota_que_nao_existe", score: 1, contact: contato, answers: {} });
+  assert.match(m, /Rota desconhecida/);
+});
+
+test("o contexto do quiz entra quando existe", () => {
+  const m = buildLeadMessage({
+    route: "qualified_trial",
+    score: 12,
+    contact: contato,
+    answers: { profile: "clinic_owner", volume: "40+", main_pain: "follow_up" },
+    routingTarget: "https://wa.me/554885040633?text=oi"
+  });
+  assert.match(m, /clinic_owner/);
+  assert.match(m, /40\+/);
+  assert.match(m, /follow_up/);
+  assert.match(m, /wa\.me/);
+});
+
+// ---------------------------------------------------------------------------
+// CONTRATO DE SEGURANÇA: notifyNewLead NUNCA lança.
+// Quando ela roda, o lead JÁ está salvo. Uma exceção aqui trocaria um aviso
+// perdido por um LEAD perdido.
+// ---------------------------------------------------------------------------
+test("sem configuração, não envia e não quebra", async () => {
+  const r = await notifyNewLead({ env: {}, route: "nurture", score: 3, contact: contato, answers: {} });
+  assert.equal(r.sent, false);
+  assert.equal(r.reason, "telegram_nao_configurado");
+});
+
+test("token sem chat (config pela metade) também não quebra", async () => {
+  const r = await notifyNewLead({ env: { TELEGRAM_BOT_TOKEN: "x" }, route: "nurture", score: 3, contact: contato, answers: {} });
+  assert.equal(r.sent, false);
+  assert.equal(r.reason, "telegram_nao_configurado");
+});
+
+test("falha de rede NÃO propaga — devolve resultado", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    throw new Error("ECONNREFUSED");
+  };
+  try {
+    const r = await notifyNewLead({
+      env: { TELEGRAM_BOT_TOKEN: "t", TELEGRAM_CHAT_ID: "1" },
+      route: "nurture",
+      score: 3,
+      contact: contato,
+      answers: {}
+    });
+    assert.equal(r.sent, false);
+    assert.equal(r.reason, "telegram_falhou");
+    assert.match(r.detail, /ECONNREFUSED/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("HTTP de erro do Telegram vira resultado, não exceção", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => ({ ok: false, status: 401, text: async () => "Unauthorized" });
+  try {
+    const r = await notifyNewLead({
+      env: { TELEGRAM_BOT_TOKEN: "t", TELEGRAM_CHAT_ID: "1" },
+      route: "qualified_trial",
+      score: 12,
+      contact: contato,
+      answers: {}
+    });
+    assert.equal(r.sent, false);
+    assert.equal(r.reason, "telegram_http_401");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("sucesso devolve sent:true", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => ({ ok: true, status: 200, text: async () => "{}" });
+  try {
+    const r = await notifyNewLead({
+      env: { TELEGRAM_BOT_TOKEN: "t", TELEGRAM_CHAT_ID: "1" },
+      route: "qualified_trial",
+      score: 12,
+      contact: contato,
+      answers: {}
+    });
+    assert.equal(r.sent, true);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

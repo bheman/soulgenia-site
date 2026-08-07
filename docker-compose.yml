@@ -71,6 +71,11 @@ services:
       ADMIN_TOKEN: ${FUNIL_ADMIN_TOKEN:?set FUNIL_ADMIN_TOKEN}
       CAPI_MODE: disabled
       NODE_ENV: production
+      # Aviso de lead novo. SEM `:?` de proposito: vazio = notificacao desligada,
+      # o funil continua capturando normalmente. Uma variavel obrigatoria aqui
+      # faria o container inteiro recusar subir por causa de um aviso.
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
     ports:
       - "127.0.0.1:3120:3109"
     networks:
