@@ -1,10 +1,13 @@
 "use client";
 
 export interface UtmParams {
+  ref?: string;
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;
   utm_content?: string;
+  utm_term?: string;
+  anonymous_visitor_id?: string;
   referrer?: string;
 }
 
@@ -19,22 +22,24 @@ export function captureUtm(): void {
   if (typeof window === "undefined") return;
 
   const url = new URL(window.location.href);
-  const hasUtm = ["utm_source", "utm_medium", "utm_campaign", "utm_content"].some(
+  const hasUtm = ["ref", "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"].some(
     (key) => url.searchParams.has(key)
   );
+  const current = getStoredUtm();
+  const anonymousVisitorId = current.anonymous_visitor_id ?? `anon_${crypto.randomUUID()}`;
 
   const params: UtmParams = {
-    utm_source: url.searchParams.get("utm_source") ?? undefined,
-    utm_medium: url.searchParams.get("utm_medium") ?? undefined,
-    utm_campaign: url.searchParams.get("utm_campaign") ?? undefined,
-    utm_content: url.searchParams.get("utm_content") ?? undefined,
-    referrer: document.referrer || undefined,
+    ref: url.searchParams.get("ref") ?? current.ref,
+    utm_source: url.searchParams.get("utm_source") ?? current.utm_source,
+    utm_medium: url.searchParams.get("utm_medium") ?? current.utm_medium,
+    utm_campaign: url.searchParams.get("utm_campaign") ?? current.utm_campaign,
+    utm_content: url.searchParams.get("utm_content") ?? current.utm_content,
+    utm_term: url.searchParams.get("utm_term") ?? current.utm_term,
+    anonymous_visitor_id: anonymousVisitorId,
+    referrer: document.referrer || current.referrer,
   };
 
-  if (hasUtm) {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(params));
-  } else if (!sessionStorage.getItem(SESSION_KEY) && params.referrer) {
-    // Preserve referrer even without UTM params on first visit
+  if (hasUtm || !sessionStorage.getItem(SESSION_KEY)) {
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(params));
   }
 }

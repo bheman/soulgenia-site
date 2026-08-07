@@ -1,0 +1,21 @@
+{
+  "name": "funil-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Reusable quiz, scoring, routing, and CAPI stub service for Claudio OS funnels.",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "build": "node scripts/check-syntax.js",
+    "lint": "node scripts/check-syntax.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {}
+}

@@ -33,3 +33,4 @@ CREATE TABLE IF NOT EXISTS landing_events (
 CREATE INDEX IF NOT EXISTS idx_landing_events_created ON landing_events(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_landing_events_name ON landing_events(event_name);
 CREATE INDEX IF NOT EXISTS idx_landing_events_campaign ON landing_events(utm_source, utm_medium, utm_campaign);
+

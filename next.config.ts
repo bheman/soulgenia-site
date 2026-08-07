@@ -1,8 +1,11 @@
 import type { NextConfig } from "next";
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH?.trim() || undefined;
+
 const nextConfig: NextConfig = {
   // Required for the Dockerfile multi-stage build (copies only necessary files)
   output: "standalone",
+  basePath,
 
   // Compress output for production
   compress: true,

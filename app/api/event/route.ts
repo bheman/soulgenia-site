@@ -12,6 +12,12 @@ const EventSchema = z.object({
     "pricing_tier_viewed",
     "faq_item_opened",
     "demo_video_played",
+    "quiz_view",
+    "quiz_started",
+    "quiz_step_completed",
+    "quiz_submitted",
+    "quiz_result_viewed",
+    "quiz_cta_clicked",
   ]),
   properties: z
     .object({

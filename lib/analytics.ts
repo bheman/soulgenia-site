@@ -15,7 +15,13 @@ export type AnalyticsEvent =
   | "trial_form_error"
   | "pricing_tier_viewed"
   | "faq_item_opened"
-  | "demo_video_played";
+  | "demo_video_played"
+  | "quiz_view"
+  | "quiz_started"
+  | "quiz_step_completed"
+  | "quiz_submitted"
+  | "quiz_result_viewed"
+  | "quiz_cta_clicked";
 
 interface EventProperties {
   variant?: "exausto" | "escala" | "conta" | "default";

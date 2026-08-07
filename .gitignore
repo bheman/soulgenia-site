@@ -33,3 +33,9 @@ npm-debug.log*
 .vscode/
 .idea/
 *.swp
+
+# backups pontuais de deploy (nao versionar)
+*.bak-*
+.env*
+!.env.example
+backups/

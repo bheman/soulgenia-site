@@ -14,9 +14,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      funil-api:
+        condition: service_started
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgres://soul_genia:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in the deploy .env}@postgres:5432/soul_genia_landing}
       DATABASE_SSL: ${DATABASE_SSL:-false}
+      FUNIL_API_URL: http://funil-api:3109
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-noreply@soulgenia.com.br}
       RESEND_NOTIFY_EMAIL: ${RESEND_NOTIFY_EMAIL:-soulgenia@gmail.com}
@@ -53,6 +56,50 @@ services:
       timeout: 5s
       retries: 5
 
+  funil-api:
+    build:
+      context: ./funil-api
+      dockerfile: Dockerfile
+    container_name: soul_genia_funil_api_prod
+    restart: unless-stopped
+    depends_on:
+      funil-postgres:
+        condition: service_healthy
+    environment:
+      PORT: "3109"
+      DATABASE_URL: postgres://funil_prod:${FUNIL_POSTGRES_PASSWORD:?set FUNIL_POSTGRES_PASSWORD}@funil-postgres:5432/funil_prod
+      ADMIN_TOKEN: ${FUNIL_ADMIN_TOKEN:?set FUNIL_ADMIN_TOKEN}
+      CAPI_MODE: disabled
+      NODE_ENV: production
+    ports:
+      - "127.0.0.1:3120:3109"
+    networks:
+      - soul-genia-private
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+
+  funil-postgres:
+    image: postgres:16-alpine
+    container_name: soul_genia_funil_postgres_prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: funil_prod
+      POSTGRES_PASSWORD: ${FUNIL_POSTGRES_PASSWORD:?set FUNIL_POSTGRES_PASSWORD}
+      POSTGRES_DB: funil_prod
+    volumes:
+      - soul-genia-funil-prod-postgres-data:/var/lib/postgresql/data
+      - ./funil-api/migrations:/docker-entrypoint-initdb.d:ro
+    networks:
+      - soul-genia-private
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U funil_prod -d funil_prod"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 networks:
   soul-genia-private:
     name: soul-genia-private
@@ -61,3 +108,4 @@ networks:
 
 volumes:
   soul-genia-postgres-data:
+  soul-genia-funil-prod-postgres-data:

@@ -1,0 +1,25 @@
+/* Tokens das variantes v3 — additive only; importado apenas pelas rotas /v3.
+   Cores de borda/blend vêm de public/images/heroes/v3/manifest.md. */
+:root {
+  /* orquestra (H02) — pérola clara, regente */
+  --v3-orquestra-bg: #f1eff2;
+  --v3-orquestra-ink: #081314;
+  --v3-orquestra-accent: #8fa3cc;
+
+  /* visao (H06) — quase-preto quente, POV */
+  --v3-visao-bg: #0a0805;
+  --v3-visao-deep: #05161f;
+  --v3-visao-navy-core: #0d2a3f;
+  --v3-visao-accent: #0fbfd7;
+
+  /* aprova (H12) — navy profundo, toque de aprovação */
+  --v3-aprova-bg: #05161f;
+  --v3-aprova-glow: #d0e8ff;
+  --v3-aprova-accent: #0daabf;
+
+  /* deverdade (H18) — creme quente diurno */
+  --v3-deverdade-bg: #f5efe2;
+  --v3-deverdade-junction: #d0c0ad;
+  --v3-deverdade-sage: #8ba888;
+  --v3-deverdade-brass: #d6b25c;
+}
