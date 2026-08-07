@@ -4,6 +4,14 @@ import type { ReactNode } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { captureUtm, getStoredUtm } from "@/lib/utm";
 
+type CtaDestination =
+  | "whatsapp"
+  | "trial"
+  | "internal"
+  | "diagnostico"
+  | "desk_signup"
+  | "planos";
+
 export default function TrackedCtaLink({
   href,
   position,
@@ -19,7 +27,7 @@ export default function TrackedCtaLink({
   className?: string;
   target?: string;
   rel?: string;
-  destination?: "whatsapp" | "trial" | "internal";
+  destination?: CtaDestination;
 }) {
   return (
     <a
@@ -53,9 +61,11 @@ export default function TrackedCtaLink({
   );
 }
 
-function inferDestination(href: string): "whatsapp" | "trial" | "internal" {
+function inferDestination(href: string): CtaDestination {
   if (href.includes("wa.me") || href.includes("whatsapp.com")) return "whatsapp";
   if (href.startsWith("/trial")) return "trial";
+  if (href.startsWith("/diagnostico")) return "diagnostico";
+  if (href.startsWith("#planos")) return "planos";
   return "internal";
 }
 
