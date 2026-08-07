@@ -99,3 +99,57 @@ function closeServer(server) {
     });
   });
 }
+
+// ---------------------------------------------------------------------------
+// E-MAIL — acrescentado 2026-08-07.
+//
+// Sem e-mail o ramo `nurture` nao tem como entregar nada, e e justamente o ramo
+// onde a pessoa NAO recebe botao de WhatsApp. A tela promete "receber exemplos".
+// Recusar aqui e melhor que gravar um lead que nasce impossivel de atender.
+// ---------------------------------------------------------------------------
+async function submit(contactPatch, repository = new MemoryRepository()) {
+  const app = createApp({ repository, env: { CAPI_MODE: "disabled" } });
+  const server = app.listen(0);
+  try {
+    const response = await fetch(`${getServerUrl(server)}/funil/soulgenia-v1/submit`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        ...qualifiedFixture,
+        contact: { ...qualifiedFixture.contact, ...contactPatch }
+      })
+    });
+    return { status: response.status, body: await response.json(), repository };
+  } finally {
+    await closeServer(server);
+  }
+}
+
+test("submit sem e-mail e RECUSADO (422) e NAO grava lead", async () => {
+  const repository = new MemoryRepository();
+  const r = await submit({ email: undefined }, repository);
+  assert.equal(r.status, 422);
+  assert.equal(r.body.error, "email_invalido");
+  assert.equal(repository.responses.length, 0, "nao pode ter gravado");
+});
+
+test("e-mail malformado e RECUSADO", async () => {
+  for (const ruim of ["sem-arroba", "a@b", "a @b.co", "   ", "@dominio.com"]) {
+    const r = await submit({ email: ruim });
+    assert.equal(r.status, 422, `deveria recusar: ${JSON.stringify(ruim)}`);
+  }
+});
+
+test("e-mail legitimo incomum e ACEITO — perder lead e pior que aceitar typo", async () => {
+  for (const bom of ["bruno+diagnostico@soulgenia.com.br", "a@dominio.novo", "x@y.tecnologia"]) {
+    const r = await submit({ email: bom });
+    assert.equal(r.status, 200, `deveria aceitar: ${bom}`);
+  }
+});
+
+test("o e-mail e normalizado no SERVIDOR (minusculas, sem espaco)", async () => {
+  const repository = new MemoryRepository();
+  await submit({ email: "  BRUNO@SoulGenia.Com.BR  " }, repository);
+  const salvo = repository.responses[repository.responses.length - 1];
+  assert.equal(salvo.contact.email, "bruno@soulgenia.com.br");
+});

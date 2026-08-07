@@ -40,6 +40,15 @@ export function createApp({ repository = createRepository(), env = process.env }
       }
 
       const payload = normalizeSubmitPayload(req.body);
+
+      // Sem e-mail valido o ramo `nurture` nao tem como entregar nada — e a tela
+      // promete "receber exemplos". Recusar aqui e melhor que gravar um lead que
+      // nasce impossivel de atender.
+      if (!isLikelyEmail(payload.contact.email)) {
+        res.status(422).json({ error: "email_invalido" });
+        return;
+      }
+
       const scoring = scoreSoulGeniaLead(payload);
       const routingTarget = buildRoutingTarget(scoring.route, payload.answers);
       const capi = await sendLeadEvent({ env, route: scoring.route });
@@ -174,12 +183,30 @@ function publicConfig(config) {
 }
 
 function normalizeSubmitPayload(body) {
+  const contact = { ...(body?.contact || {}) };
+
+  // E-mail normalizado no SERVIDOR. Validacao de cliente nao vale nada: qualquer
+  // um posta direto no endpoint. Guardamos sempre em minusculas e sem espaco —
+  // e a chave por onde a entrega vai sair.
+  if (typeof contact.email === "string") {
+    contact.email = contact.email.trim().toLowerCase();
+  }
+
   return {
     answers: body?.answers || {},
-    contact: body?.contact || {},
+    contact,
     utm: body?.utm || {},
     bucket: body?.bucket || null
   };
+}
+
+/**
+ * Forma basica, de proposito frouxa. Regex agressiva rejeita endereco legitimo
+ * (dominio novo, TLD longo, `+tag`) e o custo disso e PERDER UM LEAD — pior que
+ * aceitar um digitado errado, que o bounce revela depois.
+ */
+function isLikelyEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(value || "").trim());
 }
 
 function requireAdmin(env) {

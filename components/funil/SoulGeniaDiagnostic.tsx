@@ -51,6 +51,7 @@ export default function SoulGeniaDiagnostic() {
   const [contact, setContact] = useState<FunnelContact>({
     name: "",
     whatsapp: "",
+    email: "",
     consent_contact: false,
     privacy_ack: false,
   });
@@ -385,6 +386,22 @@ function QuestionRenderer({
             />
           </label>
 
+          <label className="grid gap-2 text-sm font-bold text-[#253d40]">
+            E-mail
+            <input
+              value={contact.email}
+              onChange={(event) => onContact("email", event.target.value)}
+              autoComplete="email"
+              inputMode="email"
+              type="email"
+              className="min-h-12 rounded-lg border border-[#cfdada] bg-white px-4 text-base font-semibold outline-none focus:border-primary-light focus:ring-2 focus:ring-primary-light/30"
+              placeholder="voce@exemplo.com"
+            />
+            <span className="text-xs font-semibold text-[#607174]">
+              E para onde mandamos o resultado e os exemplos — nao entra em lista de disparo.
+            </span>
+          </label>
+
           <ConsentCheckbox
             checked={contact.consent_contact}
             onChange={(checked) => onContact("consent_contact", checked)}
@@ -588,9 +605,21 @@ function isQuestionValid(
     contact.name.trim().length >= 2 &&
     digits.length >= 10 &&
     digits.length <= 13 &&
+    isLikelyEmail(contact.email) &&
     contact.consent_contact &&
     contact.privacy_ack
   );
+}
+
+/**
+ * Validacao deliberadamente FROUXA: forma basica, sem tentar adivinhar dominio
+ * valido. Regex agressiva de e-mail rejeita endereco legitimo (dominio novo,
+ * TLD longo, `+tag`) e o custo disso e perder um lead — pior que aceitar um
+ * digitado errado, que o bounce revela depois.
+ */
+function isLikelyEmail(value: string): boolean {
+  const v = String(value || "").trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
 }
 
 function localPath(path: string): string {

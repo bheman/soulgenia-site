@@ -10,6 +10,7 @@ export const qualifiedFixture = {
   contact: {
     name: "Lead Qualificado",
     whatsapp: "48999999999",
+    email: "lead.qualificado@exemplo.com",
     consent_contact: true,
     privacy_ack: true
   },
@@ -32,6 +33,7 @@ export const nurtureFixture = {
   contact: {
     name: "Lead Nurture",
     whatsapp: "48988888888",
+    email: "lead.nurture@exemplo.com",
     consent_contact: true,
     privacy_ack: true
   }
@@ -49,6 +51,7 @@ export const waitlistFixture = {
   contact: {
     name: "Lead Waitlist",
     whatsapp: "48977777777",
+    email: "lead.waitlist@exemplo.com",
     consent_contact: true,
     privacy_ack: true
   }
@@ -66,6 +69,7 @@ export const hardDisqualifierFixture = {
   contact: {
     name: "Lead Bloqueado",
     whatsapp: "48966666666",
+    email: "lead.bloqueado@exemplo.com",
     consent_contact: true,
     privacy_ack: true
   }

@@ -38,6 +38,12 @@ export type FunnelAnswers = Record<string, FunnelAnswerValue>;
 export type FunnelContact = {
   name: string;
   whatsapp: string;
+  /**
+   * Obrigatório. Sem e-mail o ramo `nurture` não tem como entregar nada — e é
+   * justamente o ramo onde a pessoa NÃO recebe botão de WhatsApp. A tela promete
+   * "receber exemplos"; sem este campo a promessa não tem lastro.
+   */
+  email: string;
   consent_contact: boolean;
   privacy_ack: boolean;
 };
