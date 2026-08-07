@@ -367,7 +367,9 @@ const faqs = [
   {
     question: "Quanto custa?",
     answer:
-      "Os planos começam em R$ 297 por mês. Você escolhe na seção de planos e assina na hora — com garantia de 7 dias: se não for para você, devolvemos o valor integral, sem perguntas.",
+      planDestination === "desk_signup"
+        ? "Os planos começam em R$ 297 por mês. Você escolhe na seção de planos e assina na hora — com garantia de 7 dias: se não for para você, devolvemos o valor integral, sem perguntas."
+        : "Os planos começam em R$ 297 por mês. Você escolhe o seu na seção de planos e a gente ativa junto com você — com garantia de 7 dias: se não for para você, devolvemos o valor integral, sem perguntas.",
   },
 ];
 
@@ -378,6 +380,33 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+  },
+  alternates: { canonical: "/genia" },
+  // Sem estes blocos a pagina herda o card institucional do layout raiz — que anuncia
+  // a EMPRESA, aponta og:url para "/" e usa uma imagem de marca ja aposentada.
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: "/genia",
+    siteName: "Soul Genia",
+    title: "Gênia | Sua secretária de IA, no WhatsApp de sempre",
+    description:
+      "A Gênia prepara respostas, agenda recados e organiza compromissos, contas e lembretes pelo WhatsApp. Cada mensagem espera um toque seu: você aprova, e só então ela envia.",
+    images: [
+      {
+        url: "/images/soul-genia-auria-hero.png",
+        width: 1536,
+        height: 1024,
+        alt: "Gênia, a secretária de IA que atende pelo WhatsApp",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Gênia | Sua secretária de IA, no WhatsApp de sempre",
+    description:
+      "Ela prepara respostas, lembra do que importa e organiza sua agenda pelo WhatsApp. Você aprova, e só então ela envia.",
+    images: ["/images/soul-genia-auria-hero.png"],
   },
 };
 

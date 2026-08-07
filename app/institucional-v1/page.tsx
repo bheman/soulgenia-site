@@ -101,7 +101,7 @@ export default function InstitutionalPreviewPage() {
             <h3>Gênia Secretária</h3>
             <p>Uma secretária que entende conversas, agenda, lembretes e pendências nos canais onde a vida já acontece.</p>
             <div className={styles.storyTags}><span>WhatsApp</span><span>Briefing diário</span><span>Aprovação humana</span></div>
-            <Link className={styles.storyCta} href="/v3/aprova">Conhecer a Gênia <span>↗</span></Link>
+            <Link className={styles.storyCta} href="/genia">Conhecer a Gênia <span>↗</span></Link>
           </div>
         </Reveal>
 

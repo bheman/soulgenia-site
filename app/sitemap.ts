@@ -4,11 +4,12 @@ import { blogPosts } from "@/lib/blog";
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://soulgenia.com.br";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const staticRoutes: MetadataRoute.Sitemap = ["", "/blog", "/trial", "/privacidade", "/termos"].map((path) => ({
+  const staticRoutes: MetadataRoute.Sitemap = ["", "/genia", "/blog", "/trial", "/privacidade", "/termos"].map((path) => ({
     url: `${baseUrl}${path}`,
     lastModified: new Date(),
     changeFrequency: path === "/blog" ? "weekly" as const : "monthly" as const,
-    priority: path === "" ? 1 : path === "/blog" ? 0.9 : 0.5,
+    // /genia é a página de venda do produto: fica logo abaixo da home.
+    priority: path === "" ? 1 : path === "/genia" ? 0.95 : path === "/blog" ? 0.9 : 0.5,
   }));
 
   const blogRoutes: MetadataRoute.Sitemap = blogPosts.map((post) => ({
