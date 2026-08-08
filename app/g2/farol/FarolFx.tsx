@@ -16,20 +16,23 @@ export default function FarolFx() {
     const observers: IntersectionObserver[] = [];
 
     // --- Widget flutuante: aparece depois que o hero sai do viewport e
-    // some quando o CTA final ou o footer global entram.
+    // some quando os planos (CTA "Assinar agora" em 390), o CTA final ou o
+    // footer global entram.
     const widget = document.getElementById("g2-float");
     const hero = document.getElementById("g2-hero");
+    const plans = document.getElementById("planos");
     const finalCta = document.getElementById("g2-final");
     const footer = document.querySelector("footer");
 
     if (widget && hero) {
       let heroOut = false;
+      let plansIn = false;
       let endIn = false;
       let footIn = false;
       const sync = () =>
         widget.classList.toggle(
           "g2-float-visible",
-          heroOut && !endIn && !footIn
+          heroOut && !plansIn && !endIn && !footIn
         );
 
       const heroObs = new IntersectionObserver(
@@ -41,6 +44,18 @@ export default function FarolFx() {
       );
       heroObs.observe(hero);
       observers.push(heroObs);
+
+      if (plans) {
+        const plansObs = new IntersectionObserver(
+          (entries) => {
+            plansIn = entries[0].isIntersecting;
+            sync();
+          },
+          { threshold: 0 }
+        );
+        plansObs.observe(plans);
+        observers.push(plansObs);
+      }
 
       if (finalCta) {
         const endObs = new IntersectionObserver(

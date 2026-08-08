@@ -1,4 +1,3 @@
-import { Fragment } from "react";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
@@ -543,6 +542,29 @@ export default function GeniaG2FarolPage() {
         <div className="h-20 md:h-14" />
       </section>
 
+      {/* Quick-nav mobile: sticky, irmão do hero — só aparece ao sair dele
+          (sem IO extra) e acompanha o resto da página em <sm. */}
+      <nav
+        aria-label="Atalhos da página"
+        className="sticky top-0 z-40 border-b border-white/10 bg-[#03142c]/85 px-4 py-2 backdrop-blur sm:hidden"
+      >
+        <div className="flex items-center justify-center gap-2">
+          {[
+            { href: "#planos", label: "Planos" },
+            { href: "#faq", label: "Perguntas" },
+            { href: "#virada", label: "A virada" },
+          ].map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="motion-press inline-flex min-h-11 items-center justify-center rounded-full bg-white/10 px-4 text-sm font-semibold text-white ring-1 ring-white/15"
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+      </nav>
+
       {/* ============ INTEGRAÇÕES (navy — tira de "logos" honesta) ============ */}
       <section className="bg-[var(--g2-navy)] px-5 pb-16 pt-2 text-white sm:px-8">
         <div className="mx-auto max-w-5xl text-center">
@@ -650,7 +672,7 @@ export default function GeniaG2FarolPage() {
               <h3 className="mt-2 text-2xl font-extrabold leading-snug tracking-[-0.02em] text-[var(--g2-navy)]">
                 Gênia — sua secretária de IA.
               </h3>
-              <p className="mt-2 leading-7 text-slate-500">
+              <p className="mt-2 max-w-[60ch] leading-7 text-slate-500">
                 Clicou em falar? É ela mesma quem responde. A conversa de venda
                 já é uma amostra do produto — no seu WhatsApp, com aprovação em
                 tudo.
@@ -1430,8 +1452,10 @@ export default function GeniaG2FarolPage() {
           className="motion-press flex items-center gap-2.5 rounded-full bg-[var(--g2-blue)] py-3 pl-4 pr-5 text-sm font-semibold text-white shadow-[0_20px_50px_-16px_rgba(1,94,234,0.95)] ring-1 ring-white/20 hover:bg-[var(--g2-blue-deep)]"
         >
           <Icon name="whatsapp" solid />
-          <span className="hidden sm:inline">Fala com a Gênia agora</span>
-          <span className="sm:hidden">Fala com a Gênia</span>
+          {/* Economia responsiva INTENCIONAL (travada no ciclo C): rótulo
+              curto em <sm para a bolha não engolir a largura útil. */}
+          <span className="hidden sm:inline">Falar com a Gênia agora</span>
+          <span className="sm:hidden">Falar com a Gênia</span>
         </TrackedCtaLink>
       </div>
 
@@ -1577,9 +1601,12 @@ function FarolPhoneMockup({
           {/* g2-scene = timeline única de 10s; cada filho tem UMA animation
               infinita keyed em %, fill both (técnica NewByte). */}
           <div className="g2-scene mt-2 flex flex-col gap-2">
-            {messages.map((message, index) => (
-              <Fragment key={index}>
-                {message.from === "genia" ? (
+            {messages.map((message, index) =>
+              message.from === "genia" ? (
+                // Typing e resposta na MESMA célula (.g2-swap): a troca é só
+                // opacity, a altura da célula é a da resposta ⇒ a borda
+                // inferior do telefone fica imóvel em todos os estágios.
+                <div key={index} className="g2-swap">
                   <div className="g2-anim-typing ml-1.5 w-fit">
                     <div className="g2-bub-in inline-flex items-end gap-1 rounded-[7.5px] rounded-tl-none px-3 py-2.5">
                       <span className="g2-typing-dot h-1.5 w-1.5 rounded-full bg-[#8696a0]" />
@@ -1587,57 +1614,61 @@ function FarolPhoneMockup({
                       <span className="g2-typing-dot h-1.5 w-1.5 rounded-full bg-[#8696a0]" />
                     </div>
                   </div>
-                ) : null}
+                  <div className="g2-anim-genia g2-bub-in ml-1.5 w-fit max-w-[85%] rounded-[7.5px] rounded-tl-none px-2.5 py-1.5">
+                    <p className="text-[13px] leading-[18px] text-[#e9edef]">
+                      {message.text}
+                      <span className="float-right ml-2 flex translate-y-[5px] items-center gap-1 text-[10px] leading-none text-[#8696a0]">
+                        {message.meta}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              ) : (
                 <div
-                  className={
-                    message.from === "genia"
-                      ? "g2-anim-genia g2-bub-in ml-1.5 w-fit max-w-[85%] rounded-[7.5px] rounded-tl-none px-2.5 py-1.5"
-                      : "g2-anim-user g2-bub-out ml-auto mr-1.5 w-fit max-w-[85%] rounded-[7.5px] rounded-tr-none px-2.5 py-1.5"
-                  }
+                  key={index}
+                  className="g2-anim-user g2-bub-out ml-auto mr-1.5 w-fit max-w-[85%] rounded-[7.5px] rounded-tr-none px-2.5 py-1.5"
                 >
                   <p className="text-[13px] leading-[18px] text-[#e9edef]">
                     {message.text}
                     <span className="float-right ml-2 flex translate-y-[5px] items-center gap-1 text-[10px] leading-none text-[#8696a0]">
                       {message.meta}
-                      {message.from === "user" ? (
-                        <span className="g2-stack">
-                          <svg
-                            className="g2-check-two h-3.5 w-3.5 text-[#53bdeb]"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                          >
-                            <path
-                              d="m2 13 4 4 8-9M11 16l2 1 9-10"
-                              stroke="currentColor"
-                              strokeWidth={1.8}
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                          <svg
-                            className="g2-check-one h-3.5 w-3.5 text-[#8696a0]"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                          >
-                            <path
-                              d="m5 13 4 4L19 7"
-                              stroke="currentColor"
-                              strokeWidth={1.8}
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        </span>
-                      ) : null}
+                      <span className="g2-stack">
+                        <svg
+                          className="g2-check-two h-3.5 w-3.5 text-[#53bdeb]"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <path
+                            d="m2 13 4 4 8-9M11 16l2 1 9-10"
+                            stroke="currentColor"
+                            strokeWidth={1.8}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <svg
+                          className="g2-check-one h-3.5 w-3.5 text-[#8696a0]"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <path
+                            d="m5 13 4 4L19 7"
+                            stroke="currentColor"
+                            strokeWidth={1.8}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </span>
                     </span>
                   </p>
                 </div>
-              </Fragment>
-            ))}
+              )
+            )}
 
             {/* Camada de aprovação — NOSSO produto sobre o idioma do WA */}
             {approval ? (
-              <div className="g2-anim-approval mx-0.5 mt-1.5 rounded-xl border border-[rgba(77,159,255,0.45)] bg-[#0a1a33]/95 px-3 py-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.4),0_10px_30px_-12px_rgba(1,94,234,0.6)] backdrop-blur-sm">
+              <div className="g2-anim-approval -mx-1 mt-1.5 rounded-xl border border-[rgba(77,159,255,0.45)] bg-[#0a1a33]/95 px-3 py-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.4),0_10px_30px_-12px_rgba(1,94,234,0.6)] backdrop-blur-sm">
                 <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-[var(--g2-blue-bright)]">
                   Aprovação da Gênia
                 </p>
@@ -1754,7 +1785,9 @@ function FarolPhoneMockup({
       {/* sm-md: em fluxo, sobrepondo só o canto da barra de input (chrome);
           lg+: absoluto quase todo fora, cobrindo só a moldura direita —
           as bolhas ficam 100% legíveis e nada é cortado em 640-1024. */}
-      <div className="g2-float-in z-20 mx-auto hidden w-56 rotate-[-3deg] rounded-2xl border border-white/12 bg-[#0a2547] p-4 text-left shadow-[0_34px_80px_-32px_rgba(0,0,0,0.85)] sm:-mt-6 sm:ml-auto sm:mr-2 sm:block lg:absolute lg:-right-52 lg:top-10 lg:mt-0 lg:w-60">
+      {/* relative é essencial: em fluxo (sm-md) z-index só vale em elemento
+          posicionado — sem ele o telefone (z-10) fatiava o título do painel. */}
+      <div className="g2-float-in relative z-20 mx-auto hidden w-56 rotate-[-3deg] rounded-2xl border border-white/12 bg-[#0a2547] p-4 text-left shadow-[0_34px_80px_-32px_rgba(0,0,0,0.85)] sm:-mt-6 sm:ml-auto sm:mr-2 sm:block lg:absolute lg:-right-52 lg:top-10 lg:mt-0 lg:w-60">
         <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--g2-blue-bright)]">
           Briefing de hoje — 07:30
         </p>

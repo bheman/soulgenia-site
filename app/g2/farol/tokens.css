@@ -71,6 +71,17 @@
   grid-area: 1 / 1;
 }
 
+/* Pilha de blocos do loop (typing ⇄ resposta): mesma célula, altura = o
+   filho mais alto ⇒ a troca é só opacity e NADA de layout se move. */
+.g2-swap {
+  display: grid;
+  justify-items: start;
+}
+
+.g2-swap > * {
+  grid-area: 1 / 1;
+}
+
 /* ===== WhatsApp dark de verdade (hero) ===== */
 
 /* Papel de parede #0b141a com o doodle assinatura: tile SVG inline de
@@ -465,7 +476,8 @@
 /* =====================================================================
    Rodada 3 — sistema de animação (técnica NewByte: UM timeline de 10s por
    elemento, porcentagens escalonadas, animation-fill-mode both; só
-   transform/opacity, exceto o max-height do indicador de digitação).
+   transform/opacity em TUDO — o typing trocou max-height por opacity no
+   ciclo C porque bombeava o layout do telefone).
    Estados ESTÁTICOS (reduced-motion e no-JS) ficam FORA da media query:
    conversa completa + estado "Aprovado". As animações só existem dentro
    de prefers-reduced-motion: no-preference.
@@ -517,11 +529,10 @@
   }
 }
 
-/* --- Cena do hero: estáticos. */
+/* --- Cena do hero: estáticos. Typing é opacity PURA (o max-height da
+   rodada 3 bombeava o layout do telefone a cada iteração — CLS). */
 .g2-anim-typing {
   opacity: 0;
-  max-height: 0;
-  overflow: hidden;
 }
 
 .g2-approval-stack {
@@ -644,17 +655,14 @@
     0%,
     13% {
       opacity: 0;
-      max-height: 0;
     }
     16%,
     20% {
       opacity: 1;
-      max-height: 3rem;
     }
     24%,
     100% {
       opacity: 0;
-      max-height: 0;
     }
   }
 
@@ -876,7 +884,8 @@
     }
   }
 
-  /* Segundo check ~1s depois do balão do usuário entrar (entra em 10%). */
+  /* ✓ entra com o balão (10%) e vira ✓✓ quando ela "lê e começa a
+     digitar" (14%) — a promoção coincide com o início do typing. */
   .g2-check-one {
     animation: g2CheckOne 10s linear infinite both;
   }
@@ -887,10 +896,10 @@
       opacity: 0;
     }
     10%,
-    19% {
+    13% {
       opacity: 1;
     }
-    21%,
+    15%,
     100% {
       opacity: 0;
     }
@@ -902,10 +911,10 @@
 
   @keyframes g2CheckTwo {
     0%,
-    19% {
+    13% {
       opacity: 0;
     }
-    21%,
+    15%,
     100% {
       opacity: 1;
     }
