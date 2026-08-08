@@ -27,9 +27,9 @@ const planDestination: "desk_signup" | "trial" = planDest.startsWith("http")
 const trialReassurance = "Garantia de 7 dias. Não gostou, devolvemos tudo.";
 
 const navLinks = [
+  { href: "#frentes", label: "Frentes" },
   { href: "#virada", label: "A virada" },
-  { href: "#organiza", label: "O que ela faz" },
-  { href: "#funciona", label: "Como funciona" },
+  { href: "#pratica", label: "Na prática" },
   { href: "#planos", label: "Planos" },
   { href: "#faq", label: "Perguntas" },
 ];
@@ -95,24 +95,178 @@ const heroChat: FarolChatMessage[] = [
 ];
 const heroApproval = { question: "Aprovar e enviar às 16:00?" };
 
-const promiseCards = [
+// Tira de integrações — equivalente honesto da tira de logos da NewByte:
+// canais e formatos que a Gênia já entende. Zero logo de cliente.
+const integrations = [
+  { icon: "whatsapp", label: "WhatsApp" },
+  { icon: "briefcase", label: "WhatsApp Business" },
+  { icon: "mail", label: "Gmail" },
+  { icon: "calendar", label: "Google Agenda" },
+  { icon: "audio", label: "Áudios" },
+  { icon: "image", label: "PDF e fotos" },
+];
+
+// 4 frentes — cabeçalho em gradiente que ESCURECE na sequência (benchmark §2:
+// azul-claro → azul → azul-escuro → quase-preto). Pills = futuros SKUs.
+const fronts = [
   {
-    icon: "whatsapp",
-    pill: "Sem app novo",
-    title: "Você conversa pelo WhatsApp.",
-    body: "A Gênia vive nos canais que você já usa: WhatsApp, email e calendário.",
+    pill: "Atende",
+    icon: "chat",
+    gradient: "linear-gradient(135deg, #6db3ff, #3b8bff)",
+    title: "Cliente respondido no seu tom.",
+    body: "Respostas prontas em segundos, com aprovação no que importa.",
   },
   {
-    icon: "approve",
-    pill: "Com aprovação",
-    title: "Nada sai no automático sem você.",
-    body: "Ela prepara, lembra e agenda, mas pede confirmação antes de enviar mensagens.",
+    pill: "Agenda",
+    icon: "send",
+    gradient: "linear-gradient(135deg, #3b8bff, #015eea)",
+    title: "Recados e compromissos na hora certa.",
+    body: "Você dita agora, ela agenda — e espera o seu ok para enviar.",
   },
   {
+    pill: "Lembra",
+    icon: "clock",
+    gradient: "linear-gradient(135deg, #015eea, #0a3d8f)",
+    title: "Follow-ups e contas antes do prazo.",
+    body: "Retornos, vencimentos e promessas param de escapar da cabeça.",
+  },
+  {
+    pill: "Fecha o dia",
     icon: "notebook",
-    pill: "Aprende com você",
-    title: "Quanto mais contexto, melhor a ajuda.",
-    body: "Você ensina contas, rotinas, pessoas importantes, tom de voz e preferências.",
+    gradient: "linear-gradient(135deg, #0a3d8f, #03142c)",
+    title: "O dia abre e fecha organizado.",
+    body: "Briefing de manhã, fechamento à noite, pendências claras.",
+  },
+];
+
+// Banda de métricas — qualitativas-factuais. NUNCA percentual nem contagem
+// de clientes (regra da casa: só número que conseguimos defender).
+const metrics = [
+  { value: "Segundos", label: "para uma resposta pronta" },
+  { value: "24/7", label: "de plantão no seu WhatsApp" },
+  { value: "1 toque", label: "para aprovar o que sai" },
+];
+
+// "Na prática" — conteúdo recuperado VERBATIM da página-base (/genia).
+// Horários mantidos da base (as bolhas carregam o meta de hora por dentro).
+const dayMoments: {
+  time: string;
+  title: string;
+  body: string;
+  chat: FarolChatMessage[];
+  approval?: { question: string };
+}[] = [
+  {
+    time: "07:30",
+    title: "Bom dia sem abrir cinco apps",
+    body: "Agenda, contas, remédios, mensagens importantes e o que precisa de resposta.",
+    chat: [
+      {
+        from: "genia",
+        text: "Bom dia! Sua agenda, as contas que vencem e o remédio da manhã já estão organizados aqui.",
+        meta: "07:30",
+      },
+      { from: "user", text: "Perfeito. O que vem primeiro?" },
+    ],
+  },
+  {
+    time: "11:20",
+    title: "Grupo movimentado vira resumo",
+    body: "Ela separa decisão, data, valor, tarefa e pergunta pendente em poucos segundos.",
+    chat: [
+      { from: "user", text: "Consegue resumir o grupo pra mim?" },
+      {
+        from: "genia",
+        text: "Resumo pronto: as decisões, as datas combinadas e o que ainda espera a sua resposta.",
+        meta: "11:20",
+      },
+    ],
+  },
+  {
+    time: "16:40",
+    title: "Cliente pergunta, resposta sai pronta",
+    body: "Ela redige a confirmação no seu tom e espera o seu ok antes de enviar.",
+    chat: [
+      {
+        from: "genia",
+        text: "Um cliente perguntou se amanhã às 14h está confirmado. Preparei a resposta no seu tom — é só aprovar.",
+        meta: "16:40",
+      },
+      { from: "user", text: "Perfeito, pode mandar." },
+    ],
+    approval: { question: "Aprovar e enviar a confirmação?" },
+  },
+  {
+    time: "21:00",
+    title: "Fechamento do dia",
+    body: "O que ficou aberto, quem precisa de retorno e quais compromissos chegam amanhã.",
+    chat: [
+      {
+        from: "genia",
+        text: "Fechando o dia: o que ficou aberto, quem espera retorno e o que chega amanhã.",
+        meta: "21:00",
+      },
+      { from: "user", text: "Obrigado. Me lembra do retorno logo cedo." },
+    ],
+  },
+];
+
+// Timeline da primeira semana — roteiro do onboarding, sem promessa de
+// resultado; a amarra é a própria garantia de 7 dias.
+const firstWeek = [
+  {
+    day: "Dia 1",
+    title: "Conversa e conexão",
+    body: "Você se apresenta, conecta email e agenda e conta como é a sua rotina.",
+  },
+  {
+    day: "Dias 2-3",
+    title: "Ela aprende com você",
+    body: "Prioridades, pessoas importantes, tom e limites entram na memória dela.",
+  },
+  {
+    day: "Dias 4-7",
+    title: "O ritmo se instala",
+    body: "Briefings, lembretes e aprovações acontecendo no seu horário.",
+  },
+];
+
+// Faixa de confiança — reasseguros factuais, sem prova social.
+const trustItems = [
+  { icon: "approve", label: "Nada sai sem a sua aprovação" },
+  { icon: "whatsapp", label: "Tudo acontece no seu próprio WhatsApp" },
+  { icon: "shield", label: "Cancele quando quiser — garantia de 7 dias" },
+];
+
+// "O que a Gênia NÃO faz" — transparência coerente com os limites da base.
+const notDoing = [
+  "Não dispara mensagens em massa.",
+  "Não fala com seus clientes sem você aprovar.",
+  "Não exige app novo nem migração.",
+  "Não te prende: plano mensal, sem fidelidade.",
+];
+
+// Comparativo curto (✓/—): apps soltos × uma conversa aprovada.
+const comparisonRows = [
+  {
+    topic: "Onde a rotina vive",
+    apps: "Agenda num app, lembrete noutro, cliente esperando no WhatsApp.",
+    genia: "Tudo numa conversa só, resumido e triado.",
+  },
+  {
+    topic: "Quem lembra",
+    apps: "Você, de cabeça, no meio do dia.",
+    genia: "Ela avisa antes do prazo — conta, retorno, remédio.",
+  },
+  {
+    topic: "Quem escreve",
+    apps: "Você, do zero, na pressa.",
+    genia: "Resposta pronta no seu tom, esperando o seu ok.",
+  },
+  {
+    topic: "Quem decide",
+    apps: "A notificação dispara, some e se perde.",
+    genia: "Sempre você: nada sai sem aprovação.",
   },
 ];
 
@@ -366,9 +520,9 @@ export default function GeniaG2FarolPage() {
             {trialReassurance}
           </p>
 
-          {/* Mockup de conversa real */}
+          {/* Mockup rico: telefone com chrome de app + painel de briefing sobreposto */}
           <div className="relative z-10 mt-10 w-full max-w-sm md:mt-12">
-            <FarolChatMockup messages={heroChat} approval={heroApproval} />
+            <FarolPhoneMockup messages={heroChat} approval={heroApproval} />
           </div>
         </div>
 
@@ -376,42 +530,89 @@ export default function GeniaG2FarolPage() {
         <div className="h-20 md:h-14" />
       </section>
 
-      {/* ============ PROMESSA (branca) ============ */}
-      <section className="relative bg-white px-5 py-16 sm:px-8 md:py-24">
+      {/* ============ INTEGRAÇÕES (navy — tira de "logos" honesta) ============ */}
+      <section className="bg-[var(--g2-navy)] px-5 pb-16 pt-2 text-white sm:px-8">
+        <div className="mx-auto max-w-5xl text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/55">
+            Funciona com o que você já usa
+          </p>
+          <ul className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            {integrations.map((item) => (
+              <li
+                key={item.label}
+                className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[var(--g2-navy)] shadow-[0_14px_36px_-22px_rgba(0,0,0,0.9)]"
+              >
+                <span className="text-[var(--g2-blue)]">
+                  <Icon name={item.icon} small />
+                </span>
+                {item.label}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* ============ 4 FRENTES (branca) ============ */}
+      <section
+        id="frentes"
+        className="relative bg-white px-5 py-16 sm:px-8 md:py-24"
+      >
         <div aria-hidden="true" className="g2-soft-shapes" />
         <div className="relative mx-auto max-w-6xl">
-          <div className="mx-auto max-w-2xl text-center">
+          <div className="mx-auto max-w-3xl text-center">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
-              Por que funciona
+              As 4 frentes
             </p>
             <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-[var(--g2-navy)] sm:text-4xl">
-              Uma secretária, não mais um app.
+              Uma secretária que cobre o dia em{" "}
+              <span className="text-[var(--g2-blue)]">4 frentes</span>.
             </h2>
           </div>
 
-          <div className="mt-12 grid gap-5 md:grid-cols-3">
-            {promiseCards.map((card) => (
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+            {fronts.map((front) => (
               <article
-                key={card.pill}
-                className="motion-card rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_20px_60px_-48px_rgba(3,20,44,0.5)] hover:border-[var(--g2-border-soft)]"
+                key={front.pill}
+                className="motion-card overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_20px_60px_-48px_rgba(3,20,44,0.5)] hover:border-[var(--g2-border-soft)]"
               >
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--g2-pill-bg)] text-[var(--g2-blue)]">
-                    <Icon name={card.icon} />
-                  </div>
-                  <span className="rounded-full bg-[var(--g2-pill-bg)] px-3 py-1 text-xs font-bold text-[var(--g2-blue)]">
-                    {card.pill}
+                <div
+                  className="flex items-center justify-between gap-3 p-5"
+                  style={{ background: front.gradient }}
+                >
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-white">
+                    <Icon name={front.icon} />
+                  </span>
+                  <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/25">
+                    {front.pill}
                   </span>
                 </div>
-                <h3 className="mt-5 text-xl font-extrabold leading-snug tracking-[-0.02em] text-[var(--g2-navy)]">
-                  {card.title}
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-slate-500">
-                  {card.body}
-                </p>
+                <div className="p-5">
+                  <h3 className="text-lg font-extrabold leading-snug tracking-[-0.02em] text-[var(--g2-navy)]">
+                    {front.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                    {front.body}
+                  </p>
+                </div>
               </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ============ MÉTRICAS HONESTAS (navy pontual) ============ */}
+      <section className="bg-[var(--g2-navy)] px-5 py-14 text-white sm:px-8 md:py-16">
+        <div className="mx-auto grid max-w-5xl gap-10 text-center sm:grid-cols-3">
+          {metrics.map((metric) => (
+            <div key={metric.value}>
+              <p className="text-5xl font-extrabold leading-none tracking-[-0.03em] text-white sm:text-6xl">
+                {metric.value}
+              </p>
+              <p className="mt-3 text-sm font-semibold text-[var(--g2-blue-soft)]">
+                {metric.label}
+              </p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -521,8 +722,61 @@ export default function GeniaG2FarolPage() {
         </div>
       </section>
 
-      {/* ============ O QUE ELA ORGANIZA (branca) ============ */}
-      <section id="organiza" className="bg-white px-5 py-16 sm:px-8 md:py-24">
+      {/* ============ NA PRÁTICA — o produto é a arte (branca, cards navy) ============ */}
+      <section id="pratica" className="bg-white px-5 py-16 sm:px-8 md:py-24">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-6 lg:grid-cols-[1fr_1fr] lg:items-end">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
+                Na prática
+              </p>
+              <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-[var(--g2-navy)] sm:text-4xl">
+                Veja a Gênia funcionando em um dia real.
+              </h2>
+            </div>
+            <p className="max-w-xl leading-7 text-slate-500">
+              Do briefing da manhã ao fechamento do dia, ela tira da sua cabeça
+              o que ficou espalhado em grupos, áudios, agenda, contas e
+              mensagens que não podem atrasar.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-5 md:grid-cols-2">
+            {dayMoments.map((scene) => (
+              <article
+                key={scene.time}
+                className="motion-card rounded-2xl bg-[var(--g2-navy)] p-6 shadow-[0_28px_80px_-52px_rgba(3,20,44,0.9)] ring-1 ring-white/10"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span className="rounded-full bg-[var(--g2-blue)] px-3 py-1 text-xs font-bold text-white">
+                    {scene.time}
+                  </span>
+                  <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-[var(--g2-blue-bright)]">
+                    Gênia
+                  </span>
+                </div>
+                <h3 className="mt-4 text-lg font-extrabold leading-snug tracking-[-0.01em] text-white">
+                  {scene.title}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-white/65">
+                  {scene.body}
+                </p>
+                <FarolChatMockup
+                  messages={scene.chat}
+                  approval={scene.approval}
+                  className="mt-5"
+                />
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ O QUE ELA ORGANIZA (off-white) ============ */}
+      <section
+        id="organiza"
+        className="bg-[var(--g2-offwhite)] px-5 py-16 sm:px-8 md:py-24"
+      >
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-6 lg:grid-cols-[1fr_1fr] lg:items-end">
             <div>
@@ -559,7 +813,7 @@ export default function GeniaG2FarolPage() {
             ))}
           </div>
 
-          <div className="mt-10 flex flex-col items-start justify-between gap-5 rounded-2xl bg-[var(--g2-offwhite)] p-6 ring-1 ring-slate-200 sm:flex-row sm:items-center">
+          <div className="mt-10 flex flex-col items-start justify-between gap-5 rounded-2xl bg-white p-6 ring-1 ring-slate-200 sm:flex-row sm:items-center">
             <p className="text-lg font-extrabold tracking-[-0.02em] text-[var(--g2-navy)]">
               Quer ver como isso fica na sua rotina?
             </p>
@@ -638,6 +892,43 @@ export default function GeniaG2FarolPage() {
         </div>
       </section>
 
+      {/* ============ A PRIMEIRA SEMANA (navy — roteiro do onboarding) ============ */}
+      <section className="bg-[var(--g2-navy)] px-5 py-16 text-white sm:px-8 md:py-24">
+        <div className="mx-auto max-w-6xl">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue-bright)]">
+              A primeira semana
+            </p>
+            <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-4xl">
+              Do &quot;oi&quot; ao ritmo instalado em 7 dias.
+            </h2>
+          </div>
+
+          <div className="mt-12 grid gap-5 sm:grid-cols-3">
+            {firstWeek.map((step) => (
+              <article
+                key={step.day}
+                className="motion-card rounded-2xl border border-white/12 bg-white/[0.06] p-6 hover:border-[rgba(77,159,255,0.35)]"
+              >
+                <span className="inline-flex rounded-full bg-[var(--g2-blue)] px-3 py-1 text-xs font-bold text-white">
+                  {step.day}
+                </span>
+                <h3 className="mt-4 text-lg font-extrabold leading-snug tracking-[-0.01em] text-white">
+                  {step.title}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-white/65">
+                  {step.body}
+                </p>
+              </article>
+            ))}
+          </div>
+
+          <p className="mt-8 text-center text-sm font-semibold text-[var(--g2-blue-soft)]">
+            A primeira semana inteira cabe na garantia — {trialReassurance}
+          </p>
+        </div>
+      </section>
+
       {/* ============ PLANOS (ESCURA — momento de decisão) ============ */}
       <section
         id="planos"
@@ -645,10 +936,10 @@ export default function GeniaG2FarolPage() {
       >
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -top-44 left-1/2 h-[26rem] w-[44rem] -translate-x-1/2 rounded-full"
+          className="pointer-events-none absolute -top-44 left-1/2 h-[30rem] w-[54rem] -translate-x-1/2 rounded-full"
           style={{
             background:
-              "radial-gradient(closest-side, rgba(1,94,234,0.32), transparent)",
+              "radial-gradient(closest-side, rgba(1,94,234,0.45), transparent)",
           }}
         />
 
@@ -762,6 +1053,127 @@ export default function GeniaG2FarolPage() {
         </div>
       </section>
 
+      {/* ============ COMPARATIVO (branca, ✓/—) ============ */}
+      <section id="comparativo" className="bg-white px-5 py-16 sm:px-8 md:py-24">
+        <div className="mx-auto max-w-6xl">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
+              Comparativo
+            </p>
+            <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-[var(--g2-navy)] sm:text-4xl">
+              Apps soltos ×{" "}
+              <span className="text-[var(--g2-blue)]">Gênia</span>.
+            </h2>
+          </div>
+
+          <div className="mt-12 grid gap-3">
+            <div className="hidden grid-cols-[0.6fr_1fr_1fr] gap-4 px-5 md:grid">
+              <span />
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">
+                Apps soltos
+              </p>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--g2-blue)]">
+                Gênia
+              </p>
+            </div>
+            {comparisonRows.map((row) => (
+              <article
+                key={row.topic}
+                className="motion-card grid gap-4 rounded-2xl border border-slate-200 bg-[var(--g2-offwhite)] p-5 hover:border-[var(--g2-border-soft)] md:grid-cols-[0.6fr_1fr_1fr] md:items-start"
+              >
+                <h3 className="text-base font-extrabold tracking-[-0.01em] text-[var(--g2-navy)]">
+                  {row.topic}
+                </h3>
+                <div className="flex items-start gap-2 text-sm leading-6 text-slate-400">
+                  <span className="mt-0.5 font-bold" aria-hidden="true">
+                    —
+                  </span>
+                  {row.apps}
+                </div>
+                <div className="flex items-start gap-2 rounded-xl bg-[var(--g2-pill-bg)] p-3 text-sm font-medium leading-6 text-[var(--g2-navy)]">
+                  <span className="mt-0.5 text-[var(--g2-blue)]">
+                    <CheckIcon />
+                  </span>
+                  {row.genia}
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ FAIXA DE CONFIANÇA (off-white, compacta) ============ */}
+      <section className="bg-[var(--g2-offwhite)] px-5 py-10 sm:px-8">
+        <div className="mx-auto grid max-w-5xl gap-5 sm:grid-cols-3">
+          {trustItems.map((item) => (
+            <div key={item.label} className="flex items-center gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--g2-pill-bg)] text-[var(--g2-blue)]">
+                <Icon name={item.icon} />
+              </span>
+              <p className="text-sm font-bold leading-5 text-[var(--g2-navy)]">
+                {item.label}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ============ CROSS-SELL DIAGNÓSTICO (escura — padrão "só quer
+          resolver o atendimento?" da NewByte; fatos verificados do
+          /diagnostico-ia, preço não publicado) ============ */}
+      <section className="relative overflow-hidden bg-[var(--g2-navy)] px-5 py-16 text-white sm:px-8 md:py-24">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-40 right-[-10%] h-[22rem] w-[36rem] rounded-full"
+          style={{
+            background:
+              "radial-gradient(closest-side, rgba(1,94,234,0.3), transparent)",
+          }}
+        />
+        <div className="relative z-10 mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue-bright)]">
+              Para quem tem equipe
+            </p>
+            <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-4xl">
+              Tem uma equipe atendendo clientes?
+            </h2>
+            <p className="mt-4 max-w-xl leading-7 text-[var(--g2-blue-soft)]">
+              A Gênia cuida da sua rotina pessoal. Para o atendimento da sua
+              empresa, comece medindo quanto o jeito atual custa — direto na
+              calculadora do nosso diagnóstico de IA.
+            </p>
+          </div>
+          <div>
+            <ul className="flex flex-col gap-3">
+              {[
+                "Calcule em 2 minutos quanto o atendimento manual custa por mês",
+                "Conversa gratuita de 20 min para quem tem equipe",
+                "Diagnóstico completo com garantia: 5h/semana encontradas ou você não paga",
+              ].map((item) => (
+                <li
+                  key={item}
+                  className="flex items-start gap-2.5 text-sm font-semibold leading-6 text-white/85"
+                >
+                  <span className="mt-0.5 text-[var(--g2-blue-bright)]">
+                    <CheckIcon />
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <TrackedCtaLink
+              href="/diagnostico-ia"
+              position="crosssell_diagnostico"
+              destination="diagnostico"
+              className="motion-press shine-pass mt-7 inline-flex min-h-13 items-center justify-center rounded-xl bg-[var(--g2-blue)] px-7 py-3 text-sm font-semibold text-white shadow-[0_18px_50px_-18px_rgba(1,94,234,0.95)] hover:bg-[var(--g2-blue-deep)]"
+            >
+              Calcular o custo do meu atendimento
+            </TrackedCtaLink>
+          </div>
+        </div>
+      </section>
+
       {/* ============ FAQ (branca) ============ */}
       <section id="faq" className="bg-white px-5 py-16 sm:px-8 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.8fr_1.2fr]">
@@ -806,6 +1218,31 @@ export default function GeniaG2FarolPage() {
                 </p>
               </details>
             ))}
+          </div>
+        </div>
+
+        {/* Card de transparência: o que ela NÃO faz */}
+        <div className="mx-auto mt-10 max-w-6xl">
+          <div className="rounded-2xl border border-slate-200 bg-[var(--g2-offwhite)] p-6 sm:p-8">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
+              Transparência
+            </p>
+            <h3 className="mt-2 text-xl font-extrabold tracking-[-0.02em] text-[var(--g2-navy)]">
+              O que a Gênia NÃO faz.
+            </h3>
+            <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+              {notDoing.map((item) => (
+                <li
+                  key={item}
+                  className="flex items-start gap-2.5 text-sm font-semibold leading-6 text-[var(--g2-navy)]"
+                >
+                  <span className="mt-0.5 text-slate-400">
+                    <NoIcon />
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
@@ -893,6 +1330,121 @@ type FarolChatMessage = {
   text: string;
   meta?: string;
 };
+
+/* Mockup rico do hero: telefone com chrome de app (barra superior com avatar
+   + nome + online, área de mensagens, barra de input) e um segundo painel
+   "Briefing de hoje" sobreposto com rotação sutil — padrão NewByte de
+   profundidade. Conteúdo do painel é UI ilustrativa, não prova social. */
+function FarolPhoneMockup({
+  messages,
+  approval,
+}: {
+  messages: FarolChatMessage[];
+  approval?: { question: string };
+}) {
+  return (
+    <div aria-hidden="true" className="relative">
+      <div className="relative z-10 mx-auto w-full max-w-[21rem] overflow-hidden rounded-[1.75rem] bg-[var(--g2-panel)] text-left shadow-[0_44px_110px_-44px_rgba(1,94,234,0.8)] ring-1 ring-white/15">
+        <div className="flex items-center gap-2.5 border-b border-white/10 bg-white/[0.06] px-4 py-3">
+          <Image
+            src="/images/soul-genia-profile-mark.png"
+            alt=""
+            width={32}
+            height={32}
+            className="h-8 w-8 rounded-full"
+          />
+          <div>
+            <p className="text-sm font-bold leading-none text-white">Gênia</p>
+            <p className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-emerald-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              online
+            </p>
+          </div>
+          <div className="ml-auto flex items-center gap-1 text-white/35">
+            <span className="h-1 w-1 rounded-full bg-current" />
+            <span className="h-1 w-1 rounded-full bg-current" />
+            <span className="h-1 w-1 rounded-full bg-current" />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 px-3.5 py-4">
+          {messages.map((message, index) => (
+            <div
+              key={index}
+              className={
+                message.from === "genia"
+                  ? "max-w-[76%] rounded-2xl rounded-tl-md border border-[rgba(77,159,255,0.28)] bg-white/[0.08] px-3 py-2"
+                  : "ml-auto max-w-[76%] rounded-2xl rounded-tr-md bg-[rgba(1,94,234,0.32)] px-3 py-2"
+              }
+            >
+              <p
+                className={`text-xs leading-5 ${
+                  message.from === "genia" ? "text-white/85" : "text-white/90"
+                }`}
+              >
+                {message.text}
+              </p>
+              {message.meta ? (
+                <p className="mt-1 text-right text-[10px] font-medium text-white/40">
+                  {message.meta}
+                </p>
+              ) : null}
+            </div>
+          ))}
+
+          {approval ? (
+            <div className="mt-1 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[rgba(77,159,255,0.3)] bg-white/[0.05] px-3 py-2.5">
+              <p className="text-[11px] font-semibold text-white/80">
+                {approval.question}
+              </p>
+              <div className="flex items-center gap-1.5">
+                <span className="rounded-full bg-[var(--g2-blue)] px-3 py-1 text-[10px] font-bold text-white">
+                  Aprovar
+                </span>
+                <span className="rounded-full border border-white/25 px-3 py-1 text-[10px] font-semibold text-white/75">
+                  Editar
+                </span>
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="flex items-center gap-2 border-t border-white/10 bg-white/[0.04] px-4 py-3">
+          <p className="text-xs text-white/40">Mensagem</p>
+          <span className="ml-auto flex h-7 w-7 items-center justify-center rounded-full bg-[var(--g2-blue)] text-white">
+            <Icon name="send" small />
+          </span>
+        </div>
+      </div>
+
+      {/* sm-md: em fluxo, sobrepondo só o canto da barra de input (chrome);
+          lg+: absoluto quase todo fora, cobrindo só a moldura direita —
+          as bolhas ficam 100% legíveis e nada é cortado em 640-1024. */}
+      <div className="z-20 mx-auto hidden w-56 rotate-[-3deg] rounded-2xl border border-white/12 bg-[#0a2547] p-4 text-left shadow-[0_34px_80px_-32px_rgba(0,0,0,0.85)] sm:-mt-6 sm:ml-auto sm:mr-2 sm:block lg:absolute lg:-right-52 lg:top-10 lg:mt-0 lg:w-60">
+        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--g2-blue-bright)]">
+          Briefing de hoje — 07:30
+        </p>
+        <ul className="mt-3 flex flex-col gap-2">
+          {[
+            "09:00 — Reunião com o contador",
+            "2 retornos esperando resposta",
+            "Conta de luz vence hoje",
+          ].map((item) => (
+            <li
+              key={item}
+              className="flex items-start gap-2 text-xs leading-5 text-white/80"
+            >
+              <span className="mt-0.5 text-[var(--g2-blue-bright)]">
+                <CheckIcon />
+              </span>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
 
 function FarolChatMockup({
   messages,
@@ -991,6 +1543,25 @@ function CheckIcon() {
   );
 }
 
+function NoIcon() {
+  return (
+    <svg
+      className="h-4 w-4 shrink-0"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth={2} />
+      <path
+        d="M7 17 17 7"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 function WarnIcon() {
   return (
     <svg
@@ -1028,7 +1599,13 @@ function Icon({
   if (name === "whatsapp") {
     return (
       <svg
-        className={`${solid ? "h-5 w-5 fill-[#25d366]" : "h-6 w-6 fill-current"}`}
+        className={
+          solid
+            ? "h-5 w-5 fill-[#25d366]"
+            : small
+              ? "h-4 w-4 fill-current"
+              : "h-6 w-6 fill-current"
+        }
         viewBox="0 0 24 24"
         aria-hidden="true"
       >
@@ -1125,6 +1702,33 @@ function Icon({
     return (
       <svg {...baseProps}>
         <path d="M20 6 9 17l-5-5" {...strokeProps} />
+      </svg>
+    );
+  }
+
+  if (name === "chat") {
+    return (
+      <svg {...baseProps}>
+        <path d="M5 6.5A4.5 4.5 0 0 1 9.5 2h5A4.5 4.5 0 0 1 19 6.5v3A4.5 4.5 0 0 1 14.5 14H10l-4.5 3v-4.1A4.48 4.48 0 0 1 5 10.5v-4Z" {...strokeProps} />
+        <path d="M9 7h6M9 10h4" {...strokeProps} />
+      </svg>
+    );
+  }
+
+  if (name === "briefcase") {
+    return (
+      <svg {...baseProps}>
+        <rect x="3" y="8" width="18" height="12" rx="2" {...strokeProps} />
+        <path d="M9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18" {...strokeProps} />
+      </svg>
+    );
+  }
+
+  if (name === "shield") {
+    return (
+      <svg {...baseProps}>
+        <path d="M12 3 19 6v5c0 4.6-2.8 8-7 10-4.2-2-7-5.4-7-10V6l7-3Z" {...strokeProps} />
+        <path d="m9 12 2 2 4-5" {...strokeProps} />
       </svg>
     );
   }

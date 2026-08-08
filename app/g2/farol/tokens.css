@@ -4,7 +4,7 @@
 
 .g2-farol {
   --g2-navy: #03142c;
-  --g2-navy-2: color-mix(in srgb, #03142c 96%, white); /* divisa entre seções navy */
+  --g2-navy-2: color-mix(in srgb, #03142c 92%, white); /* divisa entre seções navy */
   --g2-panel: #07203e;
   --g2-blue: #015eea;
   --g2-blue-deep: #0148b0;
