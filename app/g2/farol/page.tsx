@@ -1,7 +1,9 @@
+import { Fragment } from "react";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import LandingAnalytics from "@/components/analytics/LandingAnalytics";
+import FarolFx from "./FarolFx";
 import TrackedCtaLink from "@/components/analytics/TrackedCtaLink";
 import PricingTierViewTracker from "@/components/marketing/PricingTierViewTracker";
 
@@ -533,22 +535,37 @@ export default function GeniaG2FarolPage() {
       {/* ============ INTEGRAÇÕES (navy — tira de "logos" honesta) ============ */}
       <section className="bg-[var(--g2-navy)] px-5 pb-16 pt-2 text-white sm:px-8">
         <div className="mx-auto max-w-5xl text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/55">
+          <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-white/55">
+            <Icon name="spark" small />
             Funciona com o que você já usa
           </p>
-          <ul className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            {integrations.map((item) => (
-              <li
-                key={item.label}
-                className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[var(--g2-navy)] shadow-[0_14px_36px_-22px_rgba(0,0,0,0.9)]"
-              >
-                <span className="text-[var(--g2-blue)]">
-                  <Icon name={item.icon} small />
-                </span>
-                {item.label}
-              </li>
-            ))}
-          </ul>
+          {/* Marquee: duas metades idênticas; a track anda -50% em 30s,
+              pausa no hover; em reduced-motion vira grade estática. */}
+          <div className="g2-marquee mt-6">
+            <div className="g2-marquee-track">
+              {[false, true].map((isDup) => (
+                <ul
+                  key={isDup ? "dup" : "main"}
+                  aria-hidden={isDup || undefined}
+                  className={`flex w-max items-center gap-3 pr-3 ${
+                    isDup ? "g2-marquee-dup" : ""
+                  }`}
+                >
+                  {integrations.map((item) => (
+                    <li
+                      key={item.label}
+                      className="flex items-center gap-2 whitespace-nowrap rounded-full bg-white px-4 py-2 text-sm font-semibold text-[var(--g2-navy)] shadow-[0_14px_36px_-22px_rgba(0,0,0,0.9)]"
+                    >
+                      <span className="text-[var(--g2-blue)]">
+                        <Icon name={item.icon} small />
+                      </span>
+                      {item.label}
+                    </li>
+                  ))}
+                </ul>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -560,16 +577,20 @@ export default function GeniaG2FarolPage() {
         <div aria-hidden="true" className="g2-soft-shapes" />
         <div className="relative mx-auto max-w-6xl">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
+            <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
+              <Icon name="spark" small />
               As 4 frentes
             </p>
-            <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-[var(--g2-navy)] sm:text-4xl">
+            <h2
+              data-reveal
+              className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-[var(--g2-navy)] sm:text-4xl"
+            >
               Uma secretária que cobre o dia em{" "}
               <span className="text-[var(--g2-blue)]">4 frentes</span>.
             </h2>
           </div>
 
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          <div data-reveal-children className="mt-12 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {fronts.map((front) => (
               <article
                 key={front.pill}
@@ -597,12 +618,38 @@ export default function GeniaG2FarolPage() {
               </article>
             ))}
           </div>
+
+          {/* Card de presença — retrato real da Gênia, sem bio inventada */}
+          <div
+            data-reveal
+            className="motion-card mt-10 grid items-center gap-6 rounded-2xl border border-slate-200 bg-[var(--g2-offwhite)] p-6 sm:grid-cols-[auto_1fr] sm:p-8"
+          >
+            <Image
+              src="/images/genia-avatar.png"
+              alt="Retrato da Gênia, a secretária de IA"
+              width={208}
+              height={208}
+              className="h-44 w-44 rounded-2xl object-cover shadow-[0_24px_60px_-32px_rgba(3,20,44,0.6)] sm:h-52 sm:w-52"
+            />
+            <div>
+              <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
+                <Icon name="chat" small />
+                Quem te atende
+              </p>
+              <h3 className="mt-2 text-2xl font-extrabold leading-snug tracking-[-0.02em] text-[var(--g2-navy)]">
+                Gênia — sua secretária de IA.
+              </h3>
+              <p className="mt-2 leading-7 text-slate-500">
+                Sempre no seu WhatsApp, sempre com a sua aprovação.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* ============ MÉTRICAS HONESTAS (navy pontual) ============ */}
       <section className="bg-[var(--g2-navy)] px-5 py-14 text-white sm:px-8 md:py-16">
-        <div className="mx-auto grid max-w-5xl gap-10 text-center sm:grid-cols-3">
+        <div data-reveal-children className="mx-auto grid max-w-5xl gap-10 text-center sm:grid-cols-3">
           {metrics.map((metric) => (
             <div key={metric.value}>
               <p className="text-5xl font-extrabold leading-none tracking-[-0.03em] text-white sm:text-6xl">
@@ -623,10 +670,14 @@ export default function GeniaG2FarolPage() {
       >
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
+            <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
+              <Icon name="clock" small />
               A virada
             </p>
-            <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-[var(--g2-navy)] sm:text-4xl">
+            <h2
+              data-reveal
+              className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-[var(--g2-navy)] sm:text-4xl"
+            >
               O mesmo dia, antes e com a{" "}
               <span className="text-[var(--g2-blue)]">Gênia</span>.
             </h2>
@@ -636,7 +687,7 @@ export default function GeniaG2FarolPage() {
             </p>
           </div>
 
-          <div className="mt-12 flex flex-col gap-10">
+          <div data-reveal-children className="mt-12 flex flex-col gap-10">
             {momentPairs.map((pair) => (
               <div key={pair.moment}>
                 <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-[var(--g2-pill-bg)] px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-[var(--g2-blue)]">
@@ -727,10 +778,14 @@ export default function GeniaG2FarolPage() {
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-6 lg:grid-cols-[1fr_1fr] lg:items-end">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
+              <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
+                <Icon name="chat" small />
                 Na prática
               </p>
-              <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-[var(--g2-navy)] sm:text-4xl">
+              <h2
+                data-reveal
+                className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-[var(--g2-navy)] sm:text-4xl"
+              >
                 Veja a Gênia funcionando em um dia real.
               </h2>
             </div>
@@ -741,7 +796,7 @@ export default function GeniaG2FarolPage() {
             </p>
           </div>
 
-          <div className="mt-12 grid gap-5 md:grid-cols-2">
+          <div data-reveal-children className="mt-12 grid gap-5 md:grid-cols-2">
             {dayMoments.map((scene) => (
               <article
                 key={scene.time}
@@ -780,10 +835,14 @@ export default function GeniaG2FarolPage() {
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-6 lg:grid-cols-[1fr_1fr] lg:items-end">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
-                Na prática
+              <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
+                <Icon name="notebook" small />
+                O que ela organiza
               </p>
-              <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-[var(--g2-navy)] sm:text-4xl">
+              <h2
+                data-reveal
+                className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-[var(--g2-navy)] sm:text-4xl"
+              >
                 O que a Gênia tira da sua cabeça todo dia.
               </h2>
             </div>
@@ -794,7 +853,7 @@ export default function GeniaG2FarolPage() {
             </p>
           </div>
 
-          <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-4">
+          <div data-reveal-children className="mt-12 grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-4">
             {capabilities.map((item) => (
               <article
                 key={item.title}
@@ -839,10 +898,14 @@ export default function GeniaG2FarolPage() {
       >
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue-bright)]">
+            <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue-bright)]">
+              <Icon name="approve" small />
               Como funciona
             </p>
-            <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-4xl">
+            <h2
+              data-reveal
+              className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-4xl"
+            >
               Você não configura mais um app. Você ensina uma profissional.
             </h2>
             <p className="mt-4 max-w-xl leading-7 text-[var(--g2-blue-soft)]">
@@ -869,7 +932,7 @@ export default function GeniaG2FarolPage() {
             </ul>
           </div>
 
-          <div className="grid gap-4">
+          <div data-reveal-children className="grid gap-4">
             {learningSteps.map((item) => (
               <article
                 key={item.step}
@@ -896,19 +959,23 @@ export default function GeniaG2FarolPage() {
       <section className="bg-[var(--g2-navy)] px-5 py-16 text-white sm:px-8 md:py-24">
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue-bright)]">
+            <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue-bright)]">
+              <Icon name="calendar" small />
               A primeira semana
             </p>
-            <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-4xl">
+            <h2
+              data-reveal
+              className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-4xl"
+            >
               Do &quot;oi&quot; ao ritmo instalado em 7 dias.
             </h2>
           </div>
 
-          <div className="mt-12 grid gap-5 sm:grid-cols-3">
-            {firstWeek.map((step) => (
+          <div data-reveal-children className="mt-12 grid gap-5 sm:grid-cols-3">
+            {firstWeek.map((step, index) => (
               <article
                 key={step.day}
-                className="motion-card rounded-2xl border border-white/12 bg-white/[0.06] p-6 hover:border-[rgba(77,159,255,0.35)]"
+                className="motion-card relative rounded-2xl border border-white/12 bg-white/[0.06] p-6 hover:border-[rgba(77,159,255,0.35)]"
               >
                 <span className="inline-flex rounded-full bg-[var(--g2-blue)] px-3 py-1 text-xs font-bold text-white">
                   {step.day}
@@ -919,6 +986,29 @@ export default function GeniaG2FarolPage() {
                 <p className="mt-2 text-sm leading-6 text-white/65">
                   {step.body}
                 </p>
+                {index < firstWeek.length - 1 ? (
+                  <span
+                    aria-hidden="true"
+                    className="absolute -right-5 top-1/2 z-10 hidden -translate-y-1/2 text-[var(--g2-blue-bright)] sm:block"
+                  >
+                    <span className="g2-nudge block">
+                      <svg
+                        className="h-5 w-5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M4 12h14M13 6l6 6-6 6"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
+                  </span>
+                ) : null}
               </article>
             ))}
           </div>
@@ -945,10 +1035,14 @@ export default function GeniaG2FarolPage() {
 
         <div className="relative z-10 mx-auto max-w-6xl">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue-bright)]">
+            <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue-bright)]">
+              <Icon name="money" small />
               Planos
             </p>
-            <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-4xl">
+            <h2
+              data-reveal
+              className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-4xl"
+            >
               Escolha como a Gênia entra na sua rotina.
             </h2>
             <p className="mx-auto mt-4 max-w-2xl leading-7 text-[var(--g2-blue-soft)]">
@@ -1057,16 +1151,20 @@ export default function GeniaG2FarolPage() {
       <section id="comparativo" className="bg-white px-5 py-16 sm:px-8 md:py-24">
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
+            <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
+              <Icon name="group" small />
               Comparativo
             </p>
-            <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-[var(--g2-navy)] sm:text-4xl">
+            <h2
+              data-reveal
+              className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-[var(--g2-navy)] sm:text-4xl"
+            >
               Apps soltos ×{" "}
               <span className="text-[var(--g2-blue)]">Gênia</span>.
             </h2>
           </div>
 
-          <div className="mt-12 grid gap-3">
+          <div data-reveal-children className="mt-12 grid gap-3">
             <div className="hidden grid-cols-[0.6fr_1fr_1fr] gap-4 px-5 md:grid">
               <span />
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">
@@ -1104,7 +1202,7 @@ export default function GeniaG2FarolPage() {
 
       {/* ============ FAIXA DE CONFIANÇA (off-white, compacta) ============ */}
       <section className="bg-[var(--g2-offwhite)] px-5 py-10 sm:px-8">
-        <div className="mx-auto grid max-w-5xl gap-5 sm:grid-cols-3">
+        <div data-reveal-children className="mx-auto grid max-w-5xl gap-5 sm:grid-cols-3">
           {trustItems.map((item) => (
             <div key={item.label} className="flex items-center gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--g2-pill-bg)] text-[var(--g2-blue)]">
@@ -1132,10 +1230,14 @@ export default function GeniaG2FarolPage() {
         />
         <div className="relative z-10 mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue-bright)]">
+            <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue-bright)]">
+              <Icon name="briefcase" small />
               Para quem tem equipe
             </p>
-            <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-4xl">
+            <h2
+              data-reveal
+              className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-4xl"
+            >
               Tem uma equipe atendendo clientes?
             </h2>
             <p className="mt-4 max-w-xl leading-7 text-[var(--g2-blue-soft)]">
@@ -1178,10 +1280,14 @@ export default function GeniaG2FarolPage() {
       <section id="faq" className="bg-white px-5 py-16 sm:px-8 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
+            <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
+              <Icon name="mail" small />
               Sem letra miúda
             </p>
-            <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-[var(--g2-navy)] sm:text-4xl">
+            <h2
+              data-reveal
+              className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.03em] text-[var(--g2-navy)] sm:text-4xl"
+            >
               Tudo que você perguntaria na reunião — adiantado aqui.
             </h2>
             <p className="mt-4 max-w-md leading-7 text-slate-500">
@@ -1189,7 +1295,7 @@ export default function GeniaG2FarolPage() {
               Gênia.
             </p>
           </div>
-          <div className="grid gap-3">
+          <div data-reveal-children className="grid gap-3">
             {faqs.map((faq, index) => (
               <details
                 key={faq.question}
@@ -1224,7 +1330,8 @@ export default function GeniaG2FarolPage() {
         {/* Card de transparência: o que ela NÃO faz */}
         <div className="mx-auto mt-10 max-w-6xl">
           <div className="rounded-2xl border border-slate-200 bg-[var(--g2-offwhite)] p-6 sm:p-8">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
+            <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--g2-blue)]">
+              <Icon name="shield" small />
               Transparência
             </p>
             <h3 className="mt-2 text-xl font-extrabold tracking-[-0.02em] text-[var(--g2-navy)]">
@@ -1254,7 +1361,10 @@ export default function GeniaG2FarolPage() {
       >
         <div aria-hidden="true" className="g2-aurora opacity-60" />
         <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center text-center">
-          <h2 className="text-3xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-4xl">
+          <h2
+            data-reveal
+            className="text-3xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-4xl"
+          >
             Comece com uma conversa,
             <br className="hidden sm:block" /> não com configuração.
           </h2>
@@ -1311,12 +1421,9 @@ export default function GeniaG2FarolPage() {
       {/* Visibilidade do widget flutuante. Um client component exigiria
           "use client" num 3º arquivo (esta página exporta metadata), então a
           mesma lógica de IntersectionObserver vai como script inline vanilla. */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html:
-            '(function(){var w=document.getElementById("g2-float");var hero=document.getElementById("g2-hero");var end=document.getElementById("g2-final");var foot=document.querySelector("footer");if(!w||!hero||!("IntersectionObserver" in window))return;var heroOut=false,endIn=false,footIn=false;function sync(){w.classList.toggle("g2-float-visible",heroOut&&!endIn&&!footIn);}new IntersectionObserver(function(e){heroOut=!e[0].isIntersecting;sync();},{threshold:0}).observe(hero);if(end){new IntersectionObserver(function(e){endIn=e[0].isIntersecting;sync();},{threshold:0.15}).observe(end);}if(foot){new IntersectionObserver(function(e){footIn=e[0].isIntersecting;sync();},{threshold:0.05}).observe(foot);}})();',
-        }}
-      />
+      {/* Efeitos client-side (reveals + widget) — client component com
+          useEffect: roda pós-hidratação por construção, sem mismatch. */}
+      <FarolFx />
     </main>
   );
 }
@@ -1347,16 +1454,16 @@ function FarolPhoneMockup({
       <div className="relative z-10 mx-auto w-full max-w-[21rem] overflow-hidden rounded-[1.75rem] bg-[var(--g2-panel)] text-left shadow-[0_44px_110px_-44px_rgba(1,94,234,0.8)] ring-1 ring-white/15">
         <div className="flex items-center gap-2.5 border-b border-white/10 bg-white/[0.06] px-4 py-3">
           <Image
-            src="/images/soul-genia-profile-mark.png"
+            src="/images/genia-avatar-sm.png"
             alt=""
             width={32}
             height={32}
-            className="h-8 w-8 rounded-full"
+            className="h-8 w-8 rounded-full object-cover ring-1 ring-white/30"
           />
           <div>
             <p className="text-sm font-bold leading-none text-white">Gênia</p>
             <p className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-emerald-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              <span className="g2-pulse-dot h-1.5 w-1.5 rounded-full bg-emerald-400" />
               online
             </p>
           </div>
@@ -1367,50 +1474,77 @@ function FarolPhoneMockup({
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 px-3.5 py-4">
+        {/* g2-scene = timeline única de 10s; cada filho tem UMA animation
+            infinita keyed em %, fill both (técnica NewByte). */}
+        <div className="g2-scene flex flex-col gap-2 px-3.5 py-4">
           {messages.map((message, index) => (
-            <div
-              key={index}
-              className={
-                message.from === "genia"
-                  ? "max-w-[76%] rounded-2xl rounded-tl-md border border-[rgba(77,159,255,0.28)] bg-white/[0.08] px-3 py-2"
-                  : "ml-auto max-w-[76%] rounded-2xl rounded-tr-md bg-[rgba(1,94,234,0.32)] px-3 py-2"
-              }
-            >
-              <p
-                className={`text-xs leading-5 ${
-                  message.from === "genia" ? "text-white/85" : "text-white/90"
-                }`}
-              >
-                {message.text}
-              </p>
-              {message.meta ? (
-                <p className="mt-1 text-right text-[10px] font-medium text-white/40">
-                  {message.meta}
-                </p>
+            <Fragment key={index}>
+              {message.from === "genia" ? (
+                <div className="g2-anim-typing max-w-[76%]">
+                  <div className="inline-flex items-end gap-1 rounded-2xl rounded-tl-md border border-[rgba(77,159,255,0.28)] bg-white/[0.08] px-3 py-2.5">
+                    <span className="g2-typing-dot h-1.5 w-1.5 rounded-full bg-white/70" />
+                    <span className="g2-typing-dot h-1.5 w-1.5 rounded-full bg-white/70" />
+                    <span className="g2-typing-dot h-1.5 w-1.5 rounded-full bg-white/70" />
+                  </div>
+                </div>
               ) : null}
-            </div>
+              <div
+                className={
+                  message.from === "genia"
+                    ? "g2-anim-genia max-w-[76%] rounded-2xl rounded-tl-md border border-[rgba(77,159,255,0.28)] bg-white/[0.08] px-3 py-2"
+                    : "g2-anim-user ml-auto max-w-[76%] rounded-2xl rounded-tr-md bg-[rgba(1,94,234,0.32)] px-3 py-2"
+                }
+              >
+                <p
+                  className={`text-xs leading-5 ${
+                    message.from === "genia" ? "text-white/85" : "text-white/90"
+                  }`}
+                >
+                  {message.text}
+                </p>
+                {message.meta ? (
+                  <p className="mt-1 text-right text-[10px] font-medium text-white/40">
+                    {message.meta}
+                  </p>
+                ) : null}
+              </div>
+            </Fragment>
           ))}
 
           {approval ? (
-            <div className="mt-1 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[rgba(77,159,255,0.3)] bg-white/[0.05] px-3 py-2.5">
-              <p className="text-[11px] font-semibold text-white/80">
-                {approval.question}
-              </p>
-              <div className="flex items-center gap-1.5">
-                <span className="rounded-full bg-[var(--g2-blue)] px-3 py-1 text-[10px] font-bold text-white">
-                  Aprovar
-                </span>
-                <span className="rounded-full border border-white/25 px-3 py-1 text-[10px] font-semibold text-white/75">
-                  Editar
-                </span>
+            <div className="g2-anim-approval mt-1 rounded-xl border border-[rgba(77,159,255,0.3)] bg-white/[0.05] px-3 py-2.5">
+              <div className="g2-approval-stack">
+                <div className="g2-anim-approval-pending flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-[11px] font-semibold text-white/80">
+                    {approval.question}
+                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <span className="g2-approve-chip rounded-full bg-[var(--g2-blue)] px-3 py-1 text-[10px] font-bold text-white">
+                      Aprovar
+                    </span>
+                    <span className="rounded-full border border-white/25 px-3 py-1 text-[10px] font-semibold text-white/75">
+                      Editar
+                    </span>
+                  </div>
+                </div>
+                <div className="g2-anim-approval-done flex items-center gap-2">
+                  <span className="text-[var(--g2-blue-bright)]">
+                    <CheckIcon />
+                  </span>
+                  <p className="text-[11px] font-bold text-white/90">
+                    Aprovado — sai às 16:00
+                  </p>
+                </div>
               </div>
             </div>
           ) : null}
         </div>
 
         <div className="flex items-center gap-2 border-t border-white/10 bg-white/[0.04] px-4 py-3">
-          <p className="text-xs text-white/40">Mensagem</p>
+          <p className="flex items-center text-xs text-white/40">
+            Mensagem
+            <span className="g2-caret" aria-hidden="true" />
+          </p>
           <span className="ml-auto flex h-7 w-7 items-center justify-center rounded-full bg-[var(--g2-blue)] text-white">
             <Icon name="send" small />
           </span>
@@ -1420,7 +1554,7 @@ function FarolPhoneMockup({
       {/* sm-md: em fluxo, sobrepondo só o canto da barra de input (chrome);
           lg+: absoluto quase todo fora, cobrindo só a moldura direita —
           as bolhas ficam 100% legíveis e nada é cortado em 640-1024. */}
-      <div className="z-20 mx-auto hidden w-56 rotate-[-3deg] rounded-2xl border border-white/12 bg-[#0a2547] p-4 text-left shadow-[0_34px_80px_-32px_rgba(0,0,0,0.85)] sm:-mt-6 sm:ml-auto sm:mr-2 sm:block lg:absolute lg:-right-52 lg:top-10 lg:mt-0 lg:w-60">
+      <div className="g2-float-in z-20 mx-auto hidden w-56 rotate-[-3deg] rounded-2xl border border-white/12 bg-[#0a2547] p-4 text-left shadow-[0_34px_80px_-32px_rgba(0,0,0,0.85)] sm:-mt-6 sm:ml-auto sm:mr-2 sm:block lg:absolute lg:-right-52 lg:top-10 lg:mt-0 lg:w-60">
         <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--g2-blue-bright)]">
           Briefing de hoje — 07:30
         </p>
@@ -1462,17 +1596,17 @@ function FarolChatMockup({
     >
       <div className="mb-3 flex items-center gap-2">
         <Image
-          src="/images/soul-genia-profile-mark.png"
+          src="/images/genia-avatar-sm.png"
           alt=""
           width={20}
           height={20}
-          className="h-5 w-5 rounded-md"
+          className="h-5 w-5 rounded-full object-cover ring-1 ring-white/30"
         />
         <span className="text-[11px] font-bold tracking-wide text-[var(--g2-blue-bright)]">
           Gênia
         </span>
         <span className="ml-auto flex items-center gap-1.5 text-[10px] font-semibold text-white/45">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          <span className="g2-pulse-dot h-1.5 w-1.5 rounded-full bg-emerald-400" />
           online
         </span>
       </div>
@@ -1729,6 +1863,15 @@ function Icon({
       <svg {...baseProps}>
         <path d="M12 3 19 6v5c0 4.6-2.8 8-7 10-4.2-2-7-5.4-7-10V6l7-3Z" {...strokeProps} />
         <path d="m9 12 2 2 4-5" {...strokeProps} />
+      </svg>
+    );
+  }
+
+  if (name === "spark") {
+    return (
+      <svg {...baseProps}>
+        <path d="M12 2l1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6L12 2Z" {...strokeProps} />
+        <path d="M19 16l.7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7L19 16Z" fill="currentColor" />
       </svg>
     );
   }
