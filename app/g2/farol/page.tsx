@@ -63,7 +63,11 @@ const plans = [
       "WhatsApp: resumos de grupos e áudios",
       "Mensagens agendadas com aprovação antes do envio",
       "Follow-ups proativos",
-      "Fechamento do dia e relatório semanal",
+      // "relatório semanal" saiu (2026-08-08): nada semanal existe no
+      // scheduler/toolbox. "Fechamento do dia" fica condicionado ao deploy da
+      // F3 (job noturno espelho do briefing) — ver
+      // specs/2026-08-08-genia-farol-copy-produto-execucao-plan.md.
+      "Fechamento do dia",
     ],
     highlighted: true,
   },
@@ -77,7 +81,8 @@ const plans = [
       "Tudo do Pro",
       "Onboarding dedicado e acompanhado",
       "Personalização avançada de tom, limites e rotinas",
-      "Prioridade de processamento",
+      // "Prioridade de processamento" saiu (2026-08-08): não existe fila
+      // prioritária no dispatcher — era promessa sem mecanismo.
       "Acesso antecipado a novas conexões",
     ],
     highlighted: false,
@@ -284,7 +289,9 @@ const momentPairs = [
       body: "Você só vê de manhã — e ele já comprou de outro.",
     },
     after: {
-      title: "Resposta em segundos.",
+      // "Resposta PRONTA em segundos": ela redige em segundos, o envio espera
+      // aprovação. O título carrega a mesma honestidade do corpo.
+      title: "Resposta pronta em segundos.",
       body: "No seu tom, com aprovação no que importa.",
     },
   },
@@ -1490,10 +1497,6 @@ function FarolPhoneMockup({
   messages: FarolChatMessage[];
   approval?: { question: string };
 }) {
-  const waveform = [
-    4, 8, 5, 10, 7, 12, 6, 9, 4, 11, 7, 10, 5, 8, 12, 6, 9, 5, 7, 4,
-  ];
-
   return (
     <div aria-hidden="true" className="relative">
       <div className="relative z-10 mx-auto w-full max-w-[21rem] overflow-hidden rounded-[1.75rem] text-left shadow-[0_2px_6px_rgba(0,0,0,0.4),0_44px_110px_-44px_rgba(1,94,234,0.8)] ring-1 ring-white/15">
@@ -1570,32 +1573,20 @@ function FarolPhoneMockup({
             Hoje
           </div>
 
-          {/* Mensagem de áudio estática — "ela manda áudio também" */}
-          <div className="g2-bub-in ml-1.5 mt-2 w-fit max-w-[85%] rounded-[7.5px] rounded-tl-none px-2.5 py-2">
-            <div className="flex items-center gap-2">
-              <svg
-                className="h-4 w-4 shrink-0 text-[#8696a0]"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path d="M8 5.5v13l11-6.5-11-6.5Z" />
-              </svg>
-              <span className="flex h-6 items-center gap-[2px]">
-                {waveform.map((height, index) => (
-                  <span
-                    key={index}
-                    className={`w-[2px] rounded-full ${
-                      index < 6 ? "bg-[#00a884]" : "bg-[#8696a0]"
-                    }`}
-                    style={{ height: `${height}px` }}
-                  />
-                ))}
+          {/* Mensagem estática que abre a cena. Já foi um áudio de 0:11 dela;
+              virou TEXTO em 2026-08-08 porque a voz da Gênia é gated por
+              `metadata.voice_enabled` no dispatcher (isVoiceEnabledFor) e o
+              provisionamento NÃO liga esse flag — tenant novo recebe texto.
+              O conteúdo abaixo só usa capacidade medida: resumo de grupo
+              (review_recent_whatsapp_activity) + triagem do que pede retorno. */}
+          <div className="g2-bub-in ml-1.5 mt-2 w-fit max-w-[85%] rounded-[7.5px] rounded-tl-none px-2.5 py-1.5">
+            <p className="text-[13px] leading-[18px] text-[#e9edef]">
+              O grupo da obra combinou a entrega para sexta. Separei o que pede
+              retorno hoje.
+              <span className="float-right ml-2 flex translate-y-[5px] items-center gap-1 text-[10px] leading-none text-[#8696a0]">
+                15:04
               </span>
-              <span className="text-[10px] text-[#8696a0]">0:11</span>
-            </div>
-            <span className="mt-1 block text-right text-[10px] leading-none text-[#8696a0]">
-              15:04
-            </span>
+            </p>
           </div>
 
           {/* g2-scene = timeline única de 10s; cada filho tem UMA animation
