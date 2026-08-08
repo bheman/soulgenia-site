@@ -1,0 +1,132 @@
+/* Tokens da variante g2/aurora — additive only; importado apenas por
+   app/g2/aurora/page.tsx. Evolução conservadora: página clara da base,
+   hero escuro estilo NewByte (navy + feixe aurora teal→azul). */
+
+:root {
+  /* navy do hero — mais azul que o --v3-aprova-bg para o feixe aurora ler */
+  --g2a-hero-bg: #071a2e;
+  --g2a-hero-ink: #eaf3fb;
+
+  /* teal de ação = o mesmo par primary-light/lighter da base */
+  --g2a-teal: #0daabf;
+  --g2a-teal-bright: #0fbfd7;
+
+  /* azul do feixe/gradiente — só decorativo, nunca em CTA */
+  --g2a-blue: #4f8ef7;
+
+  /* navy quase-preto para texto em fundo claro (aperto do benchmark) */
+  --g2a-ink: #0a1f33;
+}
+
+/* Aperto tipográfico do benchmark: weight 800 + tracking -0.03em.
+   Days One (font-display da base) só existe em 400; Inter (já carregada
+   pela base como --font-inter) tem o 800 real — nenhuma fonte nova. */
+.g2a-heading {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+/* Uma palavra pintada no título (teal→azul), padrão NewByte */
+.g2a-gradient-word {
+  background: linear-gradient(
+    94deg,
+    var(--g2a-teal-bright) 8%,
+    var(--g2a-blue) 88%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---- Hero escuro com feixe aurora (CSS puro, sem asset) ---- */
+
+.g2a-hero {
+  background: var(--g2a-hero-bg);
+}
+
+.g2a-aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.g2a-aurora-beam {
+  position: absolute;
+  left: 50%;
+  top: -32%;
+  height: 130%;
+  width: 150%;
+  transform: translateX(-50%) rotate(-14deg);
+  background:
+    radial-gradient(
+      36% 44% at 30% 38%,
+      color-mix(in srgb, var(--g2a-teal-bright) 34%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(
+      40% 48% at 64% 26%,
+      color-mix(in srgb, var(--g2a-blue) 26%, transparent),
+      transparent 72%
+    ),
+    linear-gradient(
+      102deg,
+      transparent 22%,
+      color-mix(in srgb, var(--g2a-teal) 14%, transparent) 46%,
+      color-mix(in srgb, var(--g2a-blue) 12%, transparent) 62%,
+      transparent 84%
+    );
+  filter: blur(46px);
+}
+
+/* Vinheta inferior: o feixe some antes do fim do hero e o texto mantém contraste */
+.g2a-aurora::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 38%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--g2a-hero-bg) 88%, transparent)
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .g2a-aurora-beam {
+    animation: g2aAuroraDrift 22s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes g2aAuroraDrift {
+  from {
+    transform: translateX(-53%) rotate(-14deg);
+  }
+  to {
+    transform: translateX(-47%) rotate(-11deg);
+  }
+}
+
+/* ---- Widget flutuante: invisível até o hero sair do viewport ----
+   O script inline da página alterna .is-visible via IntersectionObserver
+   (hero fora E bloco final fora). Sem JS, fica escondido — os CTAs do
+   header/hero/planos cobrem o caminho. */
+.g2a-widget {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 50;
+  opacity: 0;
+  transform: translateY(14px);
+  pointer-events: none;
+  transition:
+    opacity 260ms var(--ease-out-quart),
+    transform 260ms var(--ease-out-quart);
+}
+
+.g2a-widget.is-visible {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
