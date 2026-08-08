@@ -210,6 +210,172 @@
   filter: blur(48px);
 }
 
+/* ===== Aurora VIVA do hero (rodada 4.1 — sensação do vídeo da NewByte em
+   CSS puro). Camadas separadas para animar por transform/opacity; o blur é
+   estático no elemento, quem anima é o transform do elemento já borrado.
+   Em reduced-motion nada disso anima: fica a composição estática. ===== */
+.g2-aurora-wrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  /* base diagonal estática (não deriva) */
+  background: linear-gradient(
+    118deg,
+    transparent 32%,
+    rgba(1, 94, 234, 0.24) 47%,
+    rgba(56, 189, 248, 0.16) 58%,
+    transparent 74%
+  );
+}
+
+/* Camada A: radial grande — deriva diagonal lenta. */
+.g2-aurora-a {
+  position: absolute;
+  inset: -10%;
+  background: radial-gradient(
+    52% 64% at 76% -8%,
+    rgba(1, 94, 234, 0.68),
+    transparent 62%
+  );
+}
+
+/* Camada B: radial ciano — deriva na direção OPOSTA (paralaxe). */
+.g2-aurora-b {
+  position: absolute;
+  inset: -10%;
+  background: radial-gradient(
+    38% 48% at 16% -14%,
+    rgba(56, 189, 248, 0.42),
+    transparent 58%
+  );
+}
+
+/* Facho borrado — o sweep de luz. Rotate vive no keyframe junto com o
+   translateX (animation sobrescreve transform). */
+.g2-aurora-beam {
+  position: absolute;
+  top: -32%;
+  left: 14%;
+  width: 44%;
+  height: 138%;
+  transform: rotate(24deg);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(56, 189, 248, 0.22),
+    rgba(1, 94, 234, 0.35),
+    transparent
+  );
+  filter: blur(48px);
+}
+
+/* Shimmer: faixa diagonal fina, invisível fora da passada. */
+.g2-aurora-shimmer {
+  position: absolute;
+  top: -20%;
+  left: 0;
+  width: 26%;
+  height: 140%;
+  transform: rotate(18deg) translateX(-120%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(190, 215, 255, 0.1),
+    transparent
+  );
+  opacity: 0;
+}
+
+/* Scrim estático SOBRE as camadas animadas, SOB o conteúdo: mantém a zona
+   central do texto escura e estável (AA) durante toda a passada. */
+.g2-aurora-scrim {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    62% 58% at 50% 44%,
+    rgba(3, 20, 44, 0.5),
+    transparent 76%
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .g2-aurora-a {
+    will-change: transform;
+    animation: g2DriftA 45s var(--g2-ease-in-out) infinite alternate;
+  }
+
+  @keyframes g2DriftA {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+      transform: translate3d(-7%, 5%, 0) scale(1.06);
+    }
+  }
+
+  .g2-aurora-b {
+    will-change: transform;
+    animation: g2DriftB 60s var(--g2-ease-in-out) infinite alternate;
+  }
+
+  @keyframes g2DriftB {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+      transform: translate3d(6%, -4%, 0) scale(1.05);
+    }
+  }
+
+  .g2-aurora-beam {
+    will-change: transform, opacity;
+    animation: g2Sweep 32s linear infinite;
+  }
+
+  /* Luz varrendo devagar: dim nas pontas, plena no meio (0.22→0.38→0.22 em
+     alfa efetivo ≈ opacity 0.62→1→0.62 sobre o gradiente base). */
+  @keyframes g2Sweep {
+    0% {
+      transform: translateX(-30%) rotate(24deg);
+      opacity: 0.62;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(30%) rotate(24deg);
+      opacity: 0.62;
+    }
+  }
+
+  .g2-aurora-shimmer {
+    will-change: transform, opacity;
+    animation: g2Shimmer 14s linear infinite;
+  }
+
+  @keyframes g2Shimmer {
+    0% {
+      transform: rotate(18deg) translateX(-120%);
+      opacity: 0;
+    }
+    4% {
+      opacity: 1;
+    }
+    18% {
+      opacity: 1;
+    }
+    22% {
+      transform: rotate(18deg) translateX(220%);
+      opacity: 0;
+    }
+    100% {
+      transform: rotate(18deg) translateX(220%);
+      opacity: 0;
+    }
+  }
+}
+
 /* Widget flutuante — nasce escondido; o script inline da página adiciona
    .g2-float-visible quando o hero sai do viewport e remove quando a chamada
    final ou o footer entram. Sem JS, o widget simplesmente não aparece. */

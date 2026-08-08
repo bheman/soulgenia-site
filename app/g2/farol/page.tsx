@@ -435,7 +435,13 @@ export default function GeniaG2FarolPage() {
         id="g2-hero"
         className="relative overflow-hidden bg-[var(--g2-navy)] text-white"
       >
-        <div aria-hidden="true" className="g2-aurora" />
+        <div aria-hidden="true" className="g2-aurora-wrap">
+          <div className="g2-aurora-a" />
+          <div className="g2-aurora-b" />
+          <div className="g2-aurora-beam" />
+          <div className="g2-aurora-shimmer" />
+          <div className="g2-aurora-scrim" />
+        </div>
         <div aria-hidden="true" className="g2-grain" />
 
         {/* Nav */}
