@@ -17,9 +17,141 @@
   --g2-pill-bg: rgba(1, 94, 234, 0.08);
   --g2-border-soft: rgba(1, 94, 234, 0.18);
 
+  /* Easing custom (polish pass) — nunca ease default, nunca transition:all. */
+  --g2-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --g2-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
   font-family: var(--font-jakarta), system-ui, sans-serif;
   background: #ffffff;
   color: var(--g2-navy);
+}
+
+/* Requinte tipográfico e de foco. */
+.g2-farol h1,
+.g2-farol h2 {
+  text-wrap: balance;
+}
+
+.g2-farol ::selection {
+  background: color-mix(in srgb, #015eea 35%, transparent);
+}
+
+.g2-farol :focus-visible {
+  outline: 2px solid var(--g2-h1-blue);
+  outline-offset: 3px;
+}
+
+/* Pressables: scale 0.97 no active, 160ms; propriedades explícitas. */
+.g2-farol .motion-press {
+  transition:
+    transform 160ms var(--g2-ease-out),
+    background-color 180ms var(--g2-ease-out),
+    color 180ms var(--g2-ease-out),
+    border-color 180ms var(--g2-ease-out),
+    box-shadow 200ms var(--g2-ease-out);
+}
+
+.g2-farol .motion-press:active {
+  transform: scale(0.97);
+}
+
+/* Hover-lift só onde há hover de verdade (mouse fino). */
+@media (hover: none), (pointer: coarse) {
+  .g2-farol .motion-card:hover {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Pilha genérica: filhos na mesma célula (status, checks, mic/send). */
+.g2-stack {
+  display: inline-grid;
+}
+
+.g2-stack > * {
+  grid-area: 1 / 1;
+}
+
+/* ===== WhatsApp dark de verdade (hero) ===== */
+
+/* Papel de parede #0b141a com o doodle assinatura: tile SVG inline de
+   glifos de traço fino (estrela, relógio, envelope, xícara, clipe,
+   coração, calendário) a ~4,5% de opacidade, 220px, sem tocar as bordas. */
+.g2-wa-wall {
+  background-color: #0b141a;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.045' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M34 18l3.2 7.4 8 .7-6 5.4 1.8 7.9-7-4.2-7 4.2 1.8-7.9-6-5.4 8-.7z'/%3E%3Ccircle cx='150' cy='38' r='10'/%3E%3Cpath d='M150 32v6l4 3'/%3E%3Crect x='58' y='96' width='26' height='18' rx='3'/%3E%3Cpath d='m58 99 13 8 13-8'/%3E%3Cpath d='M158 140h20v9a8 8 0 0 1-8 8h-4a8 8 0 0 1-8-8z'/%3E%3Cpath d='M178 142h3a4 4 0 0 1 0 8h-3'/%3E%3Cpath d='m32 176 11-11a5.5 5.5 0 0 1 8 8l-13 13a9 9 0 0 1-13-13l11-11'/%3E%3Cpath d='M118 196c-5.5-4.6-10-8.3-10-13a5.5 5.5 0 0 1 10-3 5.5 5.5 0 0 1 10 3c0 4.7-4.5 8.4-10 13z'/%3E%3Crect x='186' y='84' width='22' height='20' rx='3'/%3E%3Cpath d='M186 90h22M192 80v6M202 80v6'/%3E%3Ccircle cx='104' cy='52' r='2'/%3E%3Ccircle cx='196' cy='196' r='2'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 220px 220px;
+}
+
+/* Balões com anatomia WA: rabinho no canto superior externo. */
+.g2-bub-in,
+.g2-bub-out {
+  position: relative;
+}
+
+.g2-bub-in {
+  background: #202c33;
+}
+
+.g2-bub-in::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -7px;
+  width: 8px;
+  height: 12px;
+  background: #202c33;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+.g2-bub-out {
+  background: #005c4b;
+}
+
+.g2-bub-out::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -7px;
+  width: 8px;
+  height: 12px;
+  background: #005c4b;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+/* Estados estáticos dos elementos sincronizados com o loop (valem em
+   reduced-motion e antes do JS): online, ✓✓ azul, mic. */
+.g2-status-online {
+  opacity: 1;
+}
+
+.g2-status-typing {
+  opacity: 0;
+}
+
+.g2-check-one {
+  opacity: 0;
+}
+
+.g2-check-two {
+  opacity: 1;
+}
+
+.g2-mic-icon {
+  opacity: 1;
+}
+
+.g2-send-icon {
+  opacity: 0;
+}
+
+/* Grain sutil do hero (feTurbulence inline). */
+.g2-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.025;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* globals.css força var(--font-heading) (Days One) em h1-h3; a farol usa
@@ -81,17 +213,24 @@
 /* Widget flutuante — nasce escondido; o script inline da página adiciona
    .g2-float-visible quando o hero sai do viewport e remove quando a chamada
    final ou o footer entram. Sem JS, o widget simplesmente não aparece. */
+/* Assimétrico: entrada 250ms, saída 150ms (a transição declarada no estado
+   BASE rege a saída; a do estado visível rege a entrada). */
 .g2-float {
   opacity: 0;
   transform: translateY(0.5rem);
   pointer-events: none;
-  transition: opacity 220ms ease, transform 220ms ease;
+  transition:
+    opacity 150ms var(--g2-ease-out),
+    transform 150ms var(--g2-ease-out);
 }
 
 .g2-float.g2-float-visible {
   opacity: 1;
   transform: none;
   pointer-events: auto;
+  transition:
+    opacity 250ms var(--g2-ease-out),
+    transform 250ms var(--g2-ease-out);
 }
 
 /* Footer global repintado em navy SÓ nesta rota. O SiteFooter é injetado
@@ -166,24 +305,49 @@
    de prefers-reduced-motion: no-preference.
    ===================================================================== */
 
-/* --- Reveal on-scroll: .g2-reveal é adicionada por JS (sem JS, nada some). */
+/* --- Reveal on-scroll: .g2-reveal é adicionada por JS (sem JS, nada some).
+   À la Emil: em reduced-motion o fade de opacidade FICA, só o movimento sai
+   (o keyframe com translateY vive na media de no-preference). */
 .g2-reveal {
   opacity: 0;
 }
 
 .g2-revealed {
   opacity: 1;
-  animation: g2RevealUp 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: g2RevealFade 300ms var(--g2-ease-out) both;
 }
 
-@keyframes g2RevealUp {
+@keyframes g2RevealFade {
   from {
     opacity: 0;
-    transform: translateY(14px);
   }
   to {
     opacity: 1;
-    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .g2-revealed {
+    animation-name: g2RevealUp;
+  }
+
+  @keyframes g2RevealUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+/* globals.css zera TODA animação em reduce (0.01ms !important); o fade do
+   reveal é a exceção deliberada — especificidade maior + !important. */
+@media (prefers-reduced-motion: reduce) {
+  .g2-farol .g2-revealed {
+    animation-duration: 300ms !important;
   }
 }
 
@@ -291,7 +455,7 @@
   }
 
   .g2-anim-user {
-    animation: g2SeqUser 10s ease-out infinite both;
+    animation: g2SeqUser 10s var(--g2-ease-out) infinite both;
   }
 
   @keyframes g2SeqUser {
@@ -307,7 +471,7 @@
   }
 
   .g2-anim-typing {
-    animation: g2SeqTyping 10s ease infinite both;
+    animation: g2SeqTyping 10s var(--g2-ease-in-out) infinite both;
   }
 
   @keyframes g2SeqTyping {
@@ -329,7 +493,7 @@
   }
 
   .g2-typing-dot {
-    animation: g2TypingDot 1s ease-in-out infinite;
+    animation: g2TypingDot 1s var(--g2-ease-in-out) infinite;
   }
 
   .g2-typing-dot:nth-child(2) {
@@ -354,7 +518,7 @@
   }
 
   .g2-anim-genia {
-    animation: g2SeqGenia 10s ease-out infinite both;
+    animation: g2SeqGenia 10s var(--g2-ease-out) infinite both;
   }
 
   @keyframes g2SeqGenia {
@@ -371,7 +535,7 @@
   }
 
   .g2-anim-approval {
-    animation: g2SeqApproval 10s ease-out infinite both;
+    animation: g2SeqApproval 10s var(--g2-ease-out) infinite both;
   }
 
   @keyframes g2SeqApproval {
@@ -388,7 +552,7 @@
   }
 
   .g2-anim-approval-pending {
-    animation: g2SeqPending 10s ease infinite both;
+    animation: g2SeqPending 10s var(--g2-ease-in-out) infinite both;
   }
 
   @keyframes g2SeqPending {
@@ -407,7 +571,7 @@
   }
 
   .g2-anim-approval-done {
-    animation: g2SeqDone 10s ease infinite both;
+    animation: g2SeqDone 10s var(--g2-ease-in-out) infinite both;
   }
 
   @keyframes g2SeqDone {
@@ -422,7 +586,7 @@
   }
 
   .g2-approve-chip {
-    animation: g2RingPulse 10s ease infinite both;
+    animation: g2RingPulse 10s var(--g2-ease-in-out) infinite both;
   }
 
   @keyframes g2RingPulse {
@@ -445,7 +609,7 @@
   /* Painel de briefing: float-in uma vez (rotate incluído no keyframe
      porque animation sobrescreve o transform da utility). */
   .g2-float-in {
-    animation: g2FloatIn 700ms cubic-bezier(0.22, 1, 0.36, 1) 200ms both;
+    animation: g2FloatIn 300ms var(--g2-ease-out) 150ms both;
   }
 
   @keyframes g2FloatIn {
@@ -461,7 +625,7 @@
 
   /* --- Micro-vida. */
   .g2-pulse-dot {
-    animation: g2PulseDot 2s ease-in-out infinite;
+    animation: g2PulseDot 2s var(--g2-ease-in-out) infinite;
   }
 
   @keyframes g2PulseDot {
@@ -477,7 +641,7 @@
   }
 
   .g2-nudge {
-    animation: g2Nudge 2s ease-in-out infinite;
+    animation: g2Nudge 2s var(--g2-ease-in-out) infinite;
   }
 
   @keyframes g2Nudge {
@@ -502,6 +666,119 @@
       opacity: 1;
     }
     50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  /* --- Sincronia com o loop de 10s: status do header, ✓✓ e mic→send. */
+  .g2-status-online {
+    animation: g2StatusOnline 10s linear infinite both;
+  }
+
+  @keyframes g2StatusOnline {
+    0%,
+    13% {
+      opacity: 1;
+    }
+    14%,
+    23% {
+      opacity: 0;
+    }
+    24%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .g2-status-typing {
+    animation: g2StatusTyping 10s linear infinite both;
+  }
+
+  @keyframes g2StatusTyping {
+    0%,
+    13% {
+      opacity: 0;
+    }
+    14%,
+    23% {
+      opacity: 1;
+    }
+    24%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  /* Segundo check ~1s depois do balão do usuário entrar (entra em 10%). */
+  .g2-check-one {
+    animation: g2CheckOne 10s linear infinite both;
+  }
+
+  @keyframes g2CheckOne {
+    0%,
+    9% {
+      opacity: 0;
+    }
+    10%,
+    19% {
+      opacity: 1;
+    }
+    21%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .g2-check-two {
+    animation: g2CheckTwo 10s linear infinite both;
+  }
+
+  @keyframes g2CheckTwo {
+    0%,
+    19% {
+      opacity: 0;
+    }
+    21%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* Botão verde: send durante a "digitação" do usuário, mic no resto. */
+  .g2-mic-icon {
+    animation: g2MicIcon 10s linear infinite both;
+  }
+
+  @keyframes g2MicIcon {
+    0%,
+    2% {
+      opacity: 1;
+    }
+    3%,
+    8% {
+      opacity: 0;
+    }
+    10%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .g2-send-icon {
+    animation: g2SendIcon 10s linear infinite both;
+  }
+
+  @keyframes g2SendIcon {
+    0%,
+    2% {
+      opacity: 0;
+    }
+    3%,
+    8% {
+      opacity: 1;
+    }
+    10%,
     100% {
       opacity: 0;
     }

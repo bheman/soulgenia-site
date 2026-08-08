@@ -88,7 +88,11 @@ const plans = [
 // Conversa do hero — mensagens que a página-base já usa no mockup dela
 // (cena das 15:10, mensagem agendada + aprovação).
 const heroChat: FarolChatMessage[] = [
-  { from: "user", text: "Deixa esse recado agendado para as 16:00?" },
+  {
+    from: "user",
+    text: "Deixa esse recado agendado para as 16:00?",
+    meta: "15:09",
+  },
   {
     from: "genia",
     text: "Pronto. Fica agendado e só sai depois do seu ok.",
@@ -426,12 +430,13 @@ export default function GeniaG2FarolPage() {
     <main className={`g2-farol ${jakarta.variable}`}>
       <LandingAnalytics page="genia_g2_farol" />
 
-      {/* ============ HERO ESCURO (navy + feixe aurora) ============ */}
+      {/* ============ HERO ESCURO (navy + feixe aurora + grain) ============ */}
       <section
         id="g2-hero"
         className="relative overflow-hidden bg-[var(--g2-navy)] text-white"
       >
         <div aria-hidden="true" className="g2-aurora" />
+        <div aria-hidden="true" className="g2-grain" />
 
         {/* Nav */}
         <div className="relative z-20 mx-auto flex max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
@@ -658,7 +663,7 @@ export default function GeniaG2FarolPage() {
         <div data-reveal-children className="mx-auto grid max-w-5xl gap-10 text-center sm:grid-cols-3">
           {metrics.map((metric) => (
             <div key={metric.value}>
-              <p className="text-5xl font-extrabold leading-none tracking-[-0.03em] text-white sm:text-6xl">
+              <p className="text-5xl font-extrabold leading-none tracking-[-0.03em] text-white tabular-nums sm:text-6xl">
                 {metric.value}
               </p>
               <p className="mt-3 text-sm font-semibold text-[var(--g2-blue-soft)]">
@@ -1085,7 +1090,7 @@ export default function GeniaG2FarolPage() {
                   </p>
 
                   <p className="mt-6 flex items-baseline gap-1.5">
-                    <span className="text-5xl font-extrabold leading-none tracking-[-0.03em] text-white">
+                    <span className="text-5xl font-extrabold leading-none tracking-[-0.03em] text-white tabular-nums">
                       R$ {plan.price}
                     </span>
                     <span className="text-sm font-semibold text-white/56">
@@ -1455,104 +1460,287 @@ function FarolPhoneMockup({
   messages: FarolChatMessage[];
   approval?: { question: string };
 }) {
+  const waveform = [
+    4, 8, 5, 10, 7, 12, 6, 9, 4, 11, 7, 10, 5, 8, 12, 6, 9, 5, 7, 4,
+  ];
+
   return (
     <div aria-hidden="true" className="relative">
-      <div className="relative z-10 mx-auto w-full max-w-[21rem] overflow-hidden rounded-[1.75rem] bg-[var(--g2-panel)] text-left shadow-[0_44px_110px_-44px_rgba(1,94,234,0.8)] ring-1 ring-white/15">
-        <div className="flex items-center gap-2.5 border-b border-white/10 bg-white/[0.06] px-4 py-3">
+      <div className="relative z-10 mx-auto w-full max-w-[21rem] overflow-hidden rounded-[1.75rem] text-left shadow-[0_2px_6px_rgba(0,0,0,0.4),0_44px_110px_-44px_rgba(1,94,234,0.8)] ring-1 ring-white/15">
+        {/* Header do app (WA dark) — status sincronizado com o loop */}
+        <div className="flex items-center gap-2 bg-[#202c33] px-3 py-2.5">
+          <svg
+            className="h-5 w-5 shrink-0 text-[#aebac1]"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <path
+              d="M15 5 8 12l7 7"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
           <Image
             src="/images/genia-avatar-sm.png"
             alt=""
             width={32}
             height={32}
-            className="h-8 w-8 rounded-full object-cover ring-1 ring-white/30"
+            className="h-8 w-8 shrink-0 rounded-full object-cover"
           />
-          <div>
-            <p className="text-sm font-bold leading-none text-white">Gênia</p>
-            <p className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-emerald-400">
-              <span className="g2-pulse-dot h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              online
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold leading-tight text-[#e9edef]">
+              Gênia
             </p>
-          </div>
-          <div className="ml-auto flex items-center gap-1 text-white/35">
-            <span className="h-1 w-1 rounded-full bg-current" />
-            <span className="h-1 w-1 rounded-full bg-current" />
-            <span className="h-1 w-1 rounded-full bg-current" />
-          </div>
-        </div>
-
-        {/* g2-scene = timeline única de 10s; cada filho tem UMA animation
-            infinita keyed em %, fill both (técnica NewByte). */}
-        <div className="g2-scene flex flex-col gap-2 px-3.5 py-4">
-          {messages.map((message, index) => (
-            <Fragment key={index}>
-              {message.from === "genia" ? (
-                <div className="g2-anim-typing max-w-[76%]">
-                  <div className="inline-flex items-end gap-1 rounded-2xl rounded-tl-md border border-[rgba(77,159,255,0.28)] bg-white/[0.08] px-3 py-2.5">
-                    <span className="g2-typing-dot h-1.5 w-1.5 rounded-full bg-white/70" />
-                    <span className="g2-typing-dot h-1.5 w-1.5 rounded-full bg-white/70" />
-                    <span className="g2-typing-dot h-1.5 w-1.5 rounded-full bg-white/70" />
-                  </div>
-                </div>
-              ) : null}
-              <div
-                className={
-                  message.from === "genia"
-                    ? "g2-anim-genia max-w-[76%] rounded-2xl rounded-tl-md border border-[rgba(77,159,255,0.28)] bg-white/[0.08] px-3 py-2"
-                    : "g2-anim-user ml-auto max-w-[76%] rounded-2xl rounded-tr-md bg-[rgba(1,94,234,0.32)] px-3 py-2"
-                }
-              >
-                <p
-                  className={`text-xs leading-5 ${
-                    message.from === "genia" ? "text-white/85" : "text-white/90"
-                  }`}
-                >
-                  {message.text}
-                </p>
-                {message.meta ? (
-                  <p className="mt-1 text-right text-[10px] font-medium text-white/40">
-                    {message.meta}
-                  </p>
-                ) : null}
-              </div>
-            </Fragment>
-          ))}
-
-          {approval ? (
-            <div className="g2-anim-approval mt-1 rounded-xl border border-[rgba(77,159,255,0.3)] bg-white/[0.05] px-3 py-2.5">
-              <div className="g2-approval-stack">
-                <div className="g2-anim-approval-pending flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-[11px] font-semibold text-white/80">
-                    {approval.question}
-                  </p>
-                  <div className="flex items-center gap-1.5">
-                    <span className="g2-approve-chip rounded-full bg-[var(--g2-blue)] px-3 py-1 text-[10px] font-bold text-white">
-                      Aprovar
-                    </span>
-                    <span className="rounded-full border border-white/25 px-3 py-1 text-[10px] font-semibold text-white/75">
-                      Editar
-                    </span>
-                  </div>
-                </div>
-                <div className="g2-anim-approval-done flex items-center gap-2">
-                  <span className="text-[var(--g2-blue-bright)]">
-                    <CheckIcon />
-                  </span>
-                  <p className="text-[11px] font-bold text-white/90">
-                    Aprovado — sai às 16:00
-                  </p>
-                </div>
-              </div>
+            <div className="g2-stack mt-0.5 text-left text-[11px] leading-tight">
+              <span className="g2-status-online text-[#8696a0]">online</span>
+              <span className="g2-status-typing text-[#00a884]">
+                digitando…
+              </span>
             </div>
-          ) : null}
+          </div>
+          <div className="ml-auto flex shrink-0 items-center gap-3.5 text-[#aebac1]">
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none">
+              <rect
+                x="3"
+                y="7"
+                width="12"
+                height="10"
+                rx="2"
+                stroke="currentColor"
+                strokeWidth={1.6}
+              />
+              <path
+                d="m15 10 6-3v10l-6-3"
+                stroke="currentColor"
+                strokeWidth={1.6}
+                strokeLinejoin="round"
+              />
+            </svg>
+            <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M6 4h3l1.5 4L8.5 10a12 12 0 0 0 5.5 5.5l2-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4 6a2 2 0 0 1 2-2Z"
+                stroke="currentColor"
+                strokeWidth={1.6}
+                strokeLinejoin="round"
+              />
+            </svg>
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="5" r="1.8" />
+              <circle cx="12" cy="12" r="1.8" />
+              <circle cx="12" cy="19" r="1.8" />
+            </svg>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 border-t border-white/10 bg-white/[0.04] px-4 py-3">
-          <p className="flex items-center text-xs text-white/40">
-            Mensagem
-            <span className="g2-caret" aria-hidden="true" />
-          </p>
-          <span className="ml-auto flex h-7 w-7 items-center justify-center rounded-full bg-[var(--g2-blue)] text-white">
-            <Icon name="send" small />
+        {/* Papel de parede doodle + conversa */}
+        <div className="g2-wa-wall px-3 pb-3 pt-2">
+          <div className="mx-auto w-fit rounded-md bg-[#182229] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#8696a0]">
+            Hoje
+          </div>
+
+          {/* Mensagem de áudio estática — "ela manda áudio também" */}
+          <div className="g2-bub-in ml-1.5 mt-2 w-fit max-w-[85%] rounded-[7.5px] rounded-tl-none px-2.5 py-2">
+            <div className="flex items-center gap-2">
+              <svg
+                className="h-4 w-4 shrink-0 text-[#8696a0]"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M8 5.5v13l11-6.5-11-6.5Z" />
+              </svg>
+              <span className="flex h-6 items-center gap-[2px]">
+                {waveform.map((height, index) => (
+                  <span
+                    key={index}
+                    className={`w-[2px] rounded-full ${
+                      index < 6 ? "bg-[#00a884]" : "bg-[#8696a0]"
+                    }`}
+                    style={{ height: `${height}px` }}
+                  />
+                ))}
+              </span>
+              <span className="text-[10px] text-[#8696a0]">0:11</span>
+            </div>
+            <span className="mt-1 block text-right text-[10px] leading-none text-[#8696a0]">
+              15:04
+            </span>
+          </div>
+
+          {/* g2-scene = timeline única de 10s; cada filho tem UMA animation
+              infinita keyed em %, fill both (técnica NewByte). */}
+          <div className="g2-scene mt-2 flex flex-col gap-2">
+            {messages.map((message, index) => (
+              <Fragment key={index}>
+                {message.from === "genia" ? (
+                  <div className="g2-anim-typing ml-1.5 w-fit">
+                    <div className="g2-bub-in inline-flex items-end gap-1 rounded-[7.5px] rounded-tl-none px-3 py-2.5">
+                      <span className="g2-typing-dot h-1.5 w-1.5 rounded-full bg-[#8696a0]" />
+                      <span className="g2-typing-dot h-1.5 w-1.5 rounded-full bg-[#8696a0]" />
+                      <span className="g2-typing-dot h-1.5 w-1.5 rounded-full bg-[#8696a0]" />
+                    </div>
+                  </div>
+                ) : null}
+                <div
+                  className={
+                    message.from === "genia"
+                      ? "g2-anim-genia g2-bub-in ml-1.5 w-fit max-w-[85%] rounded-[7.5px] rounded-tl-none px-2.5 py-1.5"
+                      : "g2-anim-user g2-bub-out ml-auto mr-1.5 w-fit max-w-[85%] rounded-[7.5px] rounded-tr-none px-2.5 py-1.5"
+                  }
+                >
+                  <p className="text-[13px] leading-[18px] text-[#e9edef]">
+                    {message.text}
+                    <span className="float-right ml-2 flex translate-y-[5px] items-center gap-1 text-[10px] leading-none text-[#8696a0]">
+                      {message.meta}
+                      {message.from === "user" ? (
+                        <span className="g2-stack">
+                          <svg
+                            className="g2-check-two h-3.5 w-3.5 text-[#53bdeb]"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                          >
+                            <path
+                              d="m2 13 4 4 8-9M11 16l2 1 9-10"
+                              stroke="currentColor"
+                              strokeWidth={1.8}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                          <svg
+                            className="g2-check-one h-3.5 w-3.5 text-[#8696a0]"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                          >
+                            <path
+                              d="m5 13 4 4L19 7"
+                              stroke="currentColor"
+                              strokeWidth={1.8}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </span>
+                      ) : null}
+                    </span>
+                  </p>
+                </div>
+              </Fragment>
+            ))}
+
+            {/* Camada de aprovação — NOSSO produto sobre o idioma do WA */}
+            {approval ? (
+              <div className="g2-anim-approval mx-0.5 mt-1.5 rounded-xl border border-[rgba(77,159,255,0.45)] bg-[#0a1a33]/95 px-3 py-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.4),0_10px_30px_-12px_rgba(1,94,234,0.6)] backdrop-blur-sm">
+                <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-[var(--g2-blue-bright)]">
+                  Aprovação da Gênia
+                </p>
+                <div className="g2-approval-stack mt-1.5">
+                  <div className="g2-anim-approval-pending flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-[11px] font-semibold text-white/80">
+                      {approval.question}
+                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <span className="g2-approve-chip rounded-full bg-[var(--g2-blue)] px-3 py-1 text-[10px] font-bold text-white">
+                        Aprovar
+                      </span>
+                      <span className="rounded-full border border-white/25 px-3 py-1 text-[10px] font-semibold text-white/75">
+                        Editar
+                      </span>
+                    </div>
+                  </div>
+                  <div className="g2-anim-approval-done flex items-center gap-2">
+                    <span className="text-[var(--g2-blue-bright)]">
+                      <CheckIcon />
+                    </span>
+                    <p className="text-[11px] font-bold text-white/90">
+                      Aprovado — sai às 16:00
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        {/* Barra de input real do WA */}
+        <div className="flex items-center gap-2 bg-[#111b21] px-2 py-2">
+          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full bg-[#2a3942] px-3 py-2 text-[#8696a0]">
+            <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none">
+              <circle
+                cx="12"
+                cy="12"
+                r="9"
+                stroke="currentColor"
+                strokeWidth={1.6}
+              />
+              <path
+                d="M8.5 10h.01M15.5 10h.01M8.5 14.5a5 5 0 0 0 7 0"
+                stroke="currentColor"
+                strokeWidth={1.6}
+                strokeLinecap="round"
+              />
+            </svg>
+            <p className="flex min-w-0 flex-1 items-center text-[13px]">
+              Mensagem
+              <span className="g2-caret" aria-hidden="true" />
+            </p>
+            <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none">
+              <path
+                d="m17.5 6.5-7.8 7.8a2.2 2.2 0 0 1-3.1-3.1l7.4-7.4a3.6 3.6 0 0 1 5.1 5.1l-7.5 7.5a5 5 0 0 1-7-7l7-7"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M4 8h3l1.5-2h7L17 8h3v11H4V8Z"
+                stroke="currentColor"
+                strokeWidth={1.6}
+                strokeLinejoin="round"
+              />
+              <circle
+                cx="12"
+                cy="13"
+                r="3.2"
+                stroke="currentColor"
+                strokeWidth={1.6}
+              />
+            </svg>
+          </div>
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#00a884] text-white">
+            <span className="g2-stack">
+              <svg
+                className="g2-mic-icon h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <rect
+                  x="9.2"
+                  y="3"
+                  width="5.6"
+                  height="11"
+                  rx="2.8"
+                  stroke="currentColor"
+                  strokeWidth={1.8}
+                />
+                <path
+                  d="M6 11.5a6 6 0 0 0 12 0M12 17.5V21"
+                  stroke="currentColor"
+                  strokeWidth={1.8}
+                  strokeLinecap="round"
+                />
+              </svg>
+              <svg
+                className="g2-send-icon h-5 w-5 translate-x-[1px]"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M3.4 20.6 22 12 3.4 3.4 3.4 10l13 2-13 2z" />
+              </svg>
+            </span>
           </span>
         </div>
       </div>

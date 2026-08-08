@@ -67,43 +67,39 @@ export default function FarolFx() {
       }
     }
 
-    // --- Reveals on-scroll com stagger de 80ms entre irmãos; uma vez só.
-    // Reduced-motion desliga tudo (a classe .g2-reveal nem é aplicada).
-    const reduced =
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    if (!reduced) {
-      const items: HTMLElement[] = [];
-      document
-        .querySelectorAll<HTMLElement>("[data-reveal]")
-        .forEach((el) => items.push(el));
-      document
-        .querySelectorAll<HTMLElement>("[data-reveal-children]")
-        .forEach((parent) => {
-          Array.from(parent.children).forEach((child, index) => {
-            const el = child as HTMLElement;
-            el.style.animationDelay = `${index * 80}ms`;
-            items.push(el);
-          });
+    // --- Reveals on-scroll com stagger de 60ms entre irmãos; uma vez só.
+    // Em reduced-motion o init RODA mesmo assim: o CSS degrada o reveal para
+    // fade puro de opacidade (sem translateY) — à la Emil, movimento sai,
+    // suavidade fica.
+    const items: HTMLElement[] = [];
+    document
+      .querySelectorAll<HTMLElement>("[data-reveal]")
+      .forEach((el) => items.push(el));
+    document
+      .querySelectorAll<HTMLElement>("[data-reveal-children]")
+      .forEach((parent) => {
+        Array.from(parent.children).forEach((child, index) => {
+          const el = child as HTMLElement;
+          el.style.animationDelay = `${index * 60}ms`;
+          items.push(el);
         });
+      });
 
-      items.forEach((el) => el.classList.add("g2-reveal"));
+    items.forEach((el) => el.classList.add("g2-reveal"));
 
-      const revealObs = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add("g2-revealed");
-              revealObs.unobserve(entry.target);
-            }
-          });
-        },
-        { threshold: 0.2 }
-      );
-      items.forEach((el) => revealObs.observe(el));
-      observers.push(revealObs);
-    }
+    const revealObs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("g2-revealed");
+            revealObs.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+    items.forEach((el) => revealObs.observe(el));
+    observers.push(revealObs);
 
     return () => observers.forEach((observer) => observer.disconnect());
   }, []);
