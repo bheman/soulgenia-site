@@ -57,11 +57,20 @@ export type FunnelSubmitResult = {
     | "qualified_trial"
     | "nurture"
     | "waitlist_poor_fit"
-    | "hard_disqualified";
+    | "hard_disqualified"
+    // diagnostico-ia-v1:
+    | "self_serve_genia"
+    | "agendar_diagnostico";
   crm_status: string;
   hard_disqualifiers: string[];
   routing_target: string | null;
   result: FunnelResultCopy;
+  /**
+   * Calculadora do diagnostico-ia-v1: horas/mes e custo/mes estimados do
+   * atendimento manual. `null` nos funis sem calculadora — a tela de numero
+   * so aparece quando isto vem preenchido.
+   */
+  computed?: { horas_mes: number; custo_mes: number | null } | null;
   capi: {
     mode: string;
     sent: boolean;

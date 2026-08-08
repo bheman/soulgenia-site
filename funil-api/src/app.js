@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
 import { getFunnelConfig, listFunnelConfigs } from "./config/index.js";
-import { buildRoutingTarget, scoreSoulGeniaLead } from "./scoring.js";
+import { scoreLead, buildRoutingTargetFor } from "./scoring.js";
+import { renderResultCopy } from "./scoring-diagnostico-ia.js";
 import { createRepository, hashIp } from "./store.js";
 import { sendLeadEvent } from "./meta-capi.js";
 import { notifyNewLead } from "./notify.js";
@@ -50,8 +51,8 @@ export function createApp({ repository = createRepository(), env = process.env }
         return;
       }
 
-      const scoring = scoreSoulGeniaLead(payload);
-      const routingTarget = buildRoutingTarget(scoring.route, payload.answers);
+      const scoring = scoreLead(config.slug, payload);
+      const routingTarget = buildRoutingTargetFor(config.slug, scoring.route, payload.answers, env);
       const capi = await sendLeadEvent({ env, route: scoring.route });
 
       const saved = await repository.saveResponse({
@@ -89,13 +90,18 @@ export function createApp({ repository = createRepository(), env = process.env }
       // O diagnóstico personalizado, por e-mail. Fica DEPOIS de salvar: o lead
       // já está seguro, e uma falha aqui custa um e-mail — nunca o lead.
       // sendDiagnosticEmail NUNCA lança (contrato do módulo).
-      const email = await sendDiagnosticEmail({
-        env,
-        contact: payload.contact,
-        answers: payload.answers,
-        route: scoring.route,
-        waUrl: routingTarget
-      });
+      // Só o soulgenia-v1: o texto do e-mail é escrito em cima das respostas
+      // DAQUELE questionário; mandá-lo para o funil novo sairia sem sentido.
+      const email =
+        config.slug === "soulgenia-v1"
+          ? await sendDiagnosticEmail({
+              env,
+              contact: payload.contact,
+              answers: payload.answers,
+              route: scoring.route,
+              waUrl: routingTarget
+            })
+          : { sent: false, reason: "email_nao_escrito_para_este_funil" };
       if (!email.sent) {
         console.warn(
           `[funil] lead ${saved.id}: DIAGNOSTICO NAO ENVIADO: ${email.reason}` +
@@ -134,7 +140,10 @@ export function createApp({ repository = createRepository(), env = process.env }
         crm_status: scoring.crm_status,
         hard_disqualifiers: scoring.hard_disqualifiers,
         routing_target: routingTarget,
-        result: config.results[scoring.route],
+        // Placeholders ({{horas_mes}}/{{custo_mes}}) interpolados no servidor;
+        // para configs sem placeholder o texto passa intacto.
+        result: renderResultCopy(config.results[scoring.route], scoring.computed),
+        computed: scoring.computed ?? null,
         capi: {
           mode: capi.mode,
           sent: capi.sent,

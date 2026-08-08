@@ -43,7 +43,10 @@ export function buildLeadMessage({ route, score, contact, answers, routingTarget
     qualified_trial: "Ela recebeu o botão do WhatsApp. Pode ser que já te chame.",
     nurture: "Sem botão de WhatsApp — o próximo passo dela é o e-mail do diagnóstico. Se quiser puxar, é você que puxa.",
     waitlist_poor_fit: "Sem botão de WhatsApp — recebeu o diagnóstico por e-mail e parou aí.",
-    hard_disqualified: "Fora de escopo — nenhuma ação esperada."
+    hard_disqualified: "Fora de escopo — nenhuma ação esperada.",
+    // Funil diagnostico-ia-v1:
+    agendar_diagnostico: "Recebeu o botão de agendar a conversa de 20 min. Se não agendar, é você que puxa.",
+    self_serve_genia: "Foi direcionada para a página da Gênia (self-serve). Nenhuma ação sua esperada."
   };
 
   const linhas = [

@@ -16,7 +16,6 @@ type LoadState =
   | { status: "ready"; config: FunnelConfig }
   | { status: "error"; message: string };
 
-const FUNNEL_SLUG = "soulgenia-v1";
 const BASE_PATH = normalizeBasePath(process.env.NEXT_PUBLIC_BASE_PATH);
 
 const resultTone: Record<
@@ -43,9 +42,27 @@ const resultTone: Record<
     detail:
       "A Soul Genia trabalha com aprovacao humana e nao apoia disparos frios ou automacoes sensiveis sem controle.",
   },
+  // diagnostico-ia-v1:
+  self_serve_genia: {
+    label: "Caminho self-serve",
+    detail:
+      "Para quem atende sozinho, o proximo passo e conhecer a Genia — a secretaria de IA no seu proprio WhatsApp.",
+  },
+  agendar_diagnostico: {
+    label: "Conversa de 20 minutos",
+    detail:
+      "O proximo passo e uma conversa gratuita de 20 minutos sobre a sua operacao de atendimento. Sem compromisso.",
+  },
 };
 
-export default function SoulGeniaDiagnostic() {
+// O componente serve QUALQUER funil registrado no funil-api — o slug decide
+// perguntas, pontuacao e telas. Default preserva a pagina /diagnostico atual.
+export default function SoulGeniaDiagnostic({
+  slug = "soulgenia-v1",
+}: {
+  slug?: string;
+} = {}) {
+  const FUNNEL_SLUG = slug;
   const [loadState, setLoadState] = useState<LoadState>({ status: "loading" });
   const [answers, setAnswers] = useState<FunnelAnswers>({});
   const [contact, setContact] = useState<FunnelContact>({
@@ -96,7 +113,7 @@ export default function SoulGeniaDiagnostic() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [FUNNEL_SLUG]);
 
   const questions = loadState.status === "ready" ? loadState.config.questions : [];
   const currentQuestion = questions[stepIndex];
@@ -195,6 +212,16 @@ export default function SoulGeniaDiagnostic() {
         path: window.location.pathname,
         ...getStoredUtm(),
       });
+      if (body.computed?.horas_mes != null) {
+        trackEvent("calculator_shown", {
+          page: "soul_genia_diagnostic",
+          route: body.route,
+          horas_mes: body.computed.horas_mes,
+          custo_mes: body.computed.custo_mes,
+          path: window.location.pathname,
+          ...getStoredUtm(),
+        });
+      }
     } catch (error) {
       setSubmitError(
         error instanceof Error
@@ -525,6 +552,13 @@ function DiagnosticResult({
   const tone = resultTone[result.route];
   const firstName = contact.name.trim().split(/\s+/)[0] || "Pronto";
   const canOpenWhatsApp = result.route === "qualified_trial" && result.routing_target;
+  // diagnostico-ia-v1: rotas com destino proprio (Genia / agenda) e a tela de numero.
+  const ctaTarget =
+    (result.route === "self_serve_genia" || result.route === "agendar_diagnostico") &&
+    result.routing_target
+      ? result.routing_target
+      : null;
+  const computed = result.computed ?? null;
 
   return (
     <DiagnosticShell stateLabel={tone.label}>
@@ -536,6 +570,32 @@ function DiagnosticResult({
           <h2 className="mt-4 text-3xl font-display leading-tight text-primary sm:text-5xl">
             {firstName}, {result.result.title}
           </h2>
+          {computed?.horas_mes != null ? (
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <div className="rounded-xl border border-[#d9e4e2] bg-[#f5f9f7] px-6 py-4">
+                <p className="text-4xl font-display leading-none text-primary sm:text-5xl">
+                  {new Intl.NumberFormat("pt-BR").format(computed.horas_mes)}h
+                </p>
+                <p className="mt-2 text-sm font-semibold text-[#607174]">
+                  por mes respondendo cliente
+                </p>
+              </div>
+              {computed.custo_mes != null ? (
+                <div className="rounded-xl border border-[#d9e4e2] bg-[#f5f9f7] px-6 py-4">
+                  <p className="text-4xl font-display leading-none text-primary sm:text-5xl">
+                    {new Intl.NumberFormat("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                      maximumFractionDigits: 0,
+                    }).format(computed.custo_mes)}
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-[#607174]">
+                    de folha so em atendimento manual (estimativa)
+                  </p>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
           <p className="mt-5 max-w-2xl text-lg leading-8 text-[#405052]">
             {result.result.body}
           </p>
@@ -544,7 +604,31 @@ function DiagnosticResult({
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            {canOpenWhatsApp ? (
+            {ctaTarget ? (
+              <a
+                href={ctaTarget}
+                target={result.route === "agendar_diagnostico" ? "_blank" : undefined}
+                rel={result.route === "agendar_diagnostico" ? "noreferrer" : undefined}
+                onClick={() =>
+                  trackEvent(
+                    result.route === "agendar_diagnostico"
+                      ? "schedule_click"
+                      : "quiz_cta_clicked",
+                    {
+                      page: "soul_genia_diagnostic",
+                      route: result.route,
+                      destination:
+                        result.route === "agendar_diagnostico" ? "schedule" : "genia",
+                      path: window.location.pathname,
+                      ...getStoredUtm(),
+                    }
+                  )
+                }
+                className="motion-press shine-pass inline-flex min-h-13 items-center justify-center rounded-lg bg-primary-light px-6 py-3 text-sm font-bold text-white shadow-[0_14px_46px_-24px_rgba(13,170,191,0.78)] hover:bg-primary-lighter"
+              >
+                {result.result.cta}
+              </a>
+            ) : canOpenWhatsApp ? (
               <a
                 href={result.routing_target || "#"}
                 target="_blank"
