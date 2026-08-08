@@ -21,7 +21,10 @@ export type AnalyticsEvent =
   | "quiz_step_completed"
   | "quiz_submitted"
   | "quiz_result_viewed"
-  | "quiz_cta_clicked";
+  | "quiz_cta_clicked"
+  // diagnostico-ia-v1:
+  | "calculator_shown"
+  | "schedule_click";
 
 interface EventProperties {
   variant?: "exausto" | "escala" | "conta" | "default";
