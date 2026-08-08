@@ -10,11 +10,6 @@ export const metadata: Metadata = {
 
 const variants = [
   {
-    slug: "farol",
-    name: "Farol",
-    axis: "NewByte pleno — navy + azul de ação único, aurora, Jakarta 800",
-  },
-  {
     slug: "meianoite",
     name: "Meia-noite",
     axis: "Estrutura NewByte com o teal da Gênia como cor de ação (continuidade de marca)",
@@ -36,7 +31,9 @@ export default function G2Gallery() {
         Variantes do /genia — padrão NewByte
       </h1>
       <p className="mt-3 text-slate-600">
-        Briefing: benchmark NewByte. A página viva (/genia) não foi tocada.
+        Briefing: benchmark NewByte. A variante <strong>Farol</strong> venceu a
+        rodada e foi <strong>promovida a /genia</strong> (2026-08-08) — as duas
+        abaixo ficam um ciclo como registro dos eixos descartados.
       </p>
       <ul className="mt-8 space-y-4">
         {variants.map((v) => (
@@ -49,7 +46,7 @@ export default function G2Gallery() {
         ))}
         <li className="rounded-xl border border-slate-200 p-5">
           <Link href="/genia" className="text-xl font-bold text-slate-700 underline">
-            /genia — página atual (referência)
+            /genia — a Farol promovida (página viva)
           </Link>
         </li>
       </ul>
