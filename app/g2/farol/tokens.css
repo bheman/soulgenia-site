@@ -1,0 +1,158 @@
+/* Tokens da variante g2/farol (padrão NewByte) — importado APENAS por
+   app/g2/farol/page.tsx. Escopo total sob .g2-farol: nada vaza para o resto
+   do site. */
+
+.g2-farol {
+  --g2-navy: #03142c;
+  --g2-navy-2: color-mix(in srgb, #03142c 96%, white); /* divisa entre seções navy */
+  --g2-panel: #07203e;
+  --g2-blue: #015eea;
+  --g2-blue-deep: #0148b0;
+  --g2-blue-bright: #4d9fff; /* azul legível SOBRE navy (rótulos no escuro) */
+  --g2-h1-blue: #2f7ff2; /* palavra azul do H1 — 4.77:1 sobre #03142c, AA ok */
+  --g2-blue-soft: #aac6ef; /* subheadline sobre o feixe aurora */
+  --g2-cyan: #38bdf8;
+  --g2-offwhite: #f8fafc;
+  --g2-before-bg: #f1f5f9; /* card "Antes" apagado */
+  --g2-pill-bg: rgba(1, 94, 234, 0.08);
+  --g2-border-soft: rgba(1, 94, 234, 0.18);
+
+  font-family: var(--font-jakarta), system-ui, sans-serif;
+  background: #ffffff;
+  color: var(--g2-navy);
+}
+
+/* globals.css força var(--font-heading) (Days One) em h1-h3; a farol usa
+   Plus Jakarta Sans em TUDO, títulos incluídos (disciplina de uma fonte só). */
+.g2-farol h1,
+.g2-farol h2,
+.g2-farol h3,
+.g2-farol summary {
+  font-family: var(--font-jakarta), system-ui, sans-serif;
+}
+
+/* Feixe aurora diagonal do hero — CSS puro, sem imagem: dois radiais
+   (azul/ciano nascendo do topo) + um linear diagonal, e um facho rotacionado
+   desfocado no ::after. */
+.g2-aurora {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Intensidade +~35% (ciclo 1) — radiais e facho sobem, o linear que cruza
+     a zona do texto sobe menos para o centro seguir escuro. */
+  background:
+    radial-gradient(
+      52% 64% at 76% -8%,
+      rgba(1, 94, 234, 0.68),
+      transparent 62%
+    ),
+    radial-gradient(
+      38% 48% at 16% -14%,
+      rgba(56, 189, 248, 0.42),
+      transparent 58%
+    ),
+    linear-gradient(
+      118deg,
+      transparent 32%,
+      rgba(1, 94, 234, 0.24) 47%,
+      rgba(56, 189, 248, 0.16) 58%,
+      transparent 74%
+    );
+}
+
+.g2-aurora::after {
+  content: "";
+  position: absolute;
+  top: -32%;
+  left: 14%;
+  width: 44%;
+  height: 138%;
+  transform: rotate(24deg);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(56, 189, 248, 0.22),
+    rgba(1, 94, 234, 0.35),
+    transparent
+  );
+  filter: blur(48px);
+}
+
+/* Widget flutuante — nasce escondido; o script inline da página adiciona
+   .g2-float-visible quando o hero sai do viewport e remove quando a chamada
+   final ou o footer entram. Sem JS, o widget simplesmente não aparece. */
+.g2-float {
+  opacity: 0;
+  transform: translateY(0.5rem);
+  pointer-events: none;
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.g2-float.g2-float-visible {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* Footer global repintado em navy SÓ nesta rota. O SiteFooter é injetado
+   pelo layout raiz como IRMÃO do <main> (depois de {children}), então
+   descendência a partir de um wrapper não o alcança — o combinador de irmão
+   geral (~) alcança, e classe+tipo vence as utilities (classe só). */
+.g2-farol ~ footer {
+  /* Literal, não var(--g2-navy): os tokens vivem no escopo .g2-farol (o main)
+     e o footer é IRMÃO — custom property não herda lateralmente, a var()
+     resolveria inválida e a declaração cairia fora. */
+  background: #03142c;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #aac6ef;
+}
+
+.g2-farol ~ footer h1,
+.g2-farol ~ footer h2,
+.g2-farol ~ footer h3,
+.g2-farol ~ footer h4 {
+  color: #ffffff;
+}
+
+.g2-farol ~ footer div,
+.g2-farol ~ footer p {
+  color: #aac6ef;
+}
+
+/* A marca "Soul Genia" do footer é um <p class="font-display text-primary">,
+   não um heading — precisa do próprio seletor para virar branco. */
+.g2-farol ~ footer p.font-display {
+  color: #ffffff;
+}
+
+.g2-farol ~ footer a,
+.g2-farol ~ footer small {
+  color: #aac6ef;
+}
+
+.g2-farol ~ footer a:hover {
+  color: #ffffff;
+}
+
+/* © (p.text-xs) mais apagado que o corpo. */
+.g2-farol ~ footer p.text-xs {
+  color: rgba(219, 231, 255, 0.55);
+}
+
+/* Formas decorativas sutis nos fundos claros (profundidade sem ruído). */
+.g2-soft-shapes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      30% 42% at 88% 8%,
+      rgba(1, 94, 234, 0.05),
+      transparent 70%
+    ),
+    radial-gradient(
+      26% 36% at 6% 92%,
+      rgba(56, 189, 248, 0.05),
+      transparent 70%
+    );
+}

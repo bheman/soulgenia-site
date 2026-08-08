@@ -1,0 +1,82 @@
+/* Tokens da variante g2/meianoite — escopados em .g2-meianoite para não vazar
+   para outras rotas. Cor de ação = teal da própria marca (--primary-light do
+   globals.css, #0daabf), sobre navy profundo #061426. */
+
+.g2-meianoite {
+  /* base escura */
+  --mn-navy: #061426;
+  --mn-navy-deep: #040d1b;
+  --mn-navy-raise: #0a1e36;
+
+  /* texto sobre claro */
+  --mn-ink: #0a1a2e;
+  --mn-ink-soft: #47566b;
+
+  /* teal da marca como única cor de ação */
+  --mn-teal: #0daabf; /* = --primary-light (globals.css) */
+  --mn-teal-bright: #0fbfd7; /* = --primary-lighter, hover/brilho no escuro */
+  --mn-teal-ink: #0b7f8f; /* teal legível p/ texto pequeno sobre claro (AA) */
+  --mn-teal-wash: rgba(13, 170, 191, 0.1);
+
+  /* superfícies claras */
+  --mn-cloud: #f4f7fb;
+  --mn-cloud-cold: #eef4f6; /* cinza-azulado frio — quebra o ritmo de 3 claras */
+  --mn-line: #dde5ee;
+
+  /* consumido pelo WhatsAppChatMockup compartilhado (na base vem do
+     v3-tokens.css; aqui redefinido em teal claro, dentro do escopo) */
+  --v3-aprova-glow: #7fdcec;
+}
+
+/* DEFECT ciclo 1: app/globals.css aplica a display font (Days One) via seletor
+   de ELEMENTO (h1,h2,h3 { font-family: var(--font-heading) }), que vence a
+   herança do wrapper jakarta.className. Forçar os headings do escopo de volta
+   à Plus Jakarta Sans herdada do <main>. */
+.g2-meianoite h1,
+.g2-meianoite h2,
+.g2-meianoite h3 {
+  font-family: inherit;
+}
+
+/* feixe aurora do hero — teal → ciano em diagonal sobre o navy */
+.mn-aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.mn-aurora::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -32%;
+  width: 130rem;
+  height: 64rem;
+  transform: translateX(-56%) rotate(-16deg);
+  background:
+    radial-gradient(40rem 16rem at 42% 40%, rgba(13, 170, 191, 0.32), transparent 68%),
+    radial-gradient(52rem 20rem at 63% 30%, rgba(15, 191, 215, 0.18), transparent 70%),
+    radial-gradient(30rem 13rem at 30% 56%, rgba(127, 220, 236, 0.1), transparent 72%);
+  filter: blur(16px);
+}
+
+.mn-aurora::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 55%,
+    var(--mn-navy) 96%
+  );
+}
+
+/* <details> sem marcador nativo */
+.g2-meianoite details > summary {
+  list-style: none;
+}
+
+.g2-meianoite details > summary::-webkit-details-marker {
+  display: none;
+}
