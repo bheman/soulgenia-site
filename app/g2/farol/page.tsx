@@ -640,7 +640,13 @@ export default function GeniaG2FarolPage() {
                 Gênia — sua secretária de IA.
               </h3>
               <p className="mt-2 leading-7 text-slate-500">
-                Sempre no seu WhatsApp, sempre com a sua aprovação.
+                Clicou em falar? É ela mesma quem responde. A conversa de venda
+                já é uma amostra do produto — no seu WhatsApp, com aprovação em
+                tudo.
+              </p>
+              <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-[var(--g2-pill-bg)] px-3 py-1.5 text-xs font-bold text-[var(--g2-blue)]">
+                <span className="g2-pulse-dot h-1.5 w-1.5 rounded-full bg-[var(--g2-blue)]" />
+                Demonstração ao vivo, sem agendar nada
               </p>
             </div>
           </div>
