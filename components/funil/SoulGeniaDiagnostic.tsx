@@ -363,6 +363,12 @@ export default function SoulGeniaDiagnostic({
         headline={copy.headline}
         headlineClass={copy.headlineClass}
         subheadline={copy.loadingSubheadline}
+        // A `note` TEM de vir junto com a headline. A headline promete
+        // "ou receba seu dinheiro de volta"; a note e' o que diz que a garantia
+        // cobre ACHAR e documentar, nao a economia realizada. Sem ela, durante o
+        // cold start (medido acima de 15s) o visitante le a promessa forte sem a
+        // ressalva que a torna honesta — exatamente ao contrario do desenho.
+        note={copy.note}
       />
     );
   }
