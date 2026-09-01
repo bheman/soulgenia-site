@@ -43,10 +43,12 @@ const resultTone: Record<
       "A Soul Genia trabalha com aprovacao humana e nao apoia disparos frios ou automacoes sensiveis sem controle.",
   },
   // diagnostico-ia-v1 (rotas exclusivas deste funil — acentuadas):
+  // Esta rota recebe 1 E 2 pessoas (corte do degrau pago >= 3). Deck §6.2:
+  // nenhuma string aqui pode presumir quantidade — "sozinho" saiu por isso.
   self_serve_genia: {
     label: "Caminho self-serve",
     detail:
-      "Para quem atende sozinho, o próximo passo é conhecer a Gênia — a secretária de IA no seu próprio WhatsApp.",
+      "O próximo passo é conhecer a Gênia — a secretária de IA no seu próprio WhatsApp.",
   },
   agendar_diagnostico: {
     label: "Conversa de 20 minutos",
@@ -73,6 +75,13 @@ type ShellCopy = {
   subheadline: string;
   /** Mostrada enquanto a config nao chegou (cold start medido > 15s). */
   loadingSubheadline: string;
+  /**
+   * Subheadline do shell NA TELA DE RESULTADO. Separada porque a subheadline da
+   * dobra (§2) diz "na sua equipe" — verdade para o degrau pago (>=3), mentira
+   * em cima do card de `self_serve_genia`, que atende 1 E 2 pessoas (deck §6.2).
+   * `undefined` = o shell nao renderiza subheadline nenhuma na tela de resultado.
+   */
+  resultSubheadline?: string;
   /** Linha de honestidade sob a promessa (opcional). */
   note?: string;
   /** Microcopy sob a dobra (opcional). */
@@ -81,6 +90,17 @@ type ShellCopy = {
   submittingLabel: string;
   contactLabel: string;
   contactHelper: string;
+  /**
+   * Classe de tamanho da h1. Literal COMPLETO dos dois lados — o scanner do
+   * Tailwind so' gera a regra se enxergar a string inteira no fonte.
+   */
+  headlineClass: string;
+  /**
+   * Link secundario da tela `agendar_diagnostico`. Deck §6.1 pede "Ver os
+   * termos da garantia"; como nao existe pagina de termos da garantia nem
+   * campo de link no schema do config, e' ancora para o FAQ desta pagina.
+   */
+  guaranteeLink?: { label: string; href: string };
 };
 
 const DEFAULT_SHELL_COPY: ShellCopy = {
@@ -93,6 +113,9 @@ const DEFAULT_SHELL_COPY: ShellCopy = {
     "Responda algumas perguntas sobre WhatsApp, volume de mensagens e um fluxo real desta semana. O resultado orienta o melhor proximo passo: teste guiado, conteudo de preparo ou lista de interesse.",
   loadingSubheadline:
     "Responda algumas perguntas sobre WhatsApp, volume de mensagens e um fluxo real desta semana. O resultado orienta o melhor proximo passo: teste guiado, conteudo de preparo ou lista de interesse.",
+  // O funil antigo ja' mostrava esta subheadline na tela de resultado: mantida.
+  resultSubheadline:
+    "Responda algumas perguntas sobre WhatsApp, volume de mensagens e um fluxo real desta semana. O resultado orienta o melhor proximo passo: teste guiado, conteudo de preparo ou lista de interesse.",
   sidebarNotes: [
     "Sem promessa de autonomia total.",
     "Aprovacao humana antes de mensagens externas.",
@@ -102,6 +125,7 @@ const DEFAULT_SHELL_COPY: ShellCopy = {
   contactLabel: "Como a Soul Genia pode falar com voce?",
   contactHelper:
     "Esse contato fica ligado ao diagnostico e nao autoriza disparos automaticos.",
+  headlineClass: "text-[clamp(2.4rem,8vw,5.6rem)]",
 };
 
 const SHELL_COPY_BY_SLUG: Record<string, ShellCopy> = {
@@ -118,6 +142,10 @@ const SHELL_COPY_BY_SLUG: Record<string, ShellCopy> = {
       "Uma entrevista de 45 minutos com um consultor sênior, um relatório priorizado em até 3 dias úteis, e uma call de revisão. Se não encontrarmos e documentarmos pelo menos 5 horas por semana na sua equipe, devolvemos 100% do valor.",
     loadingSubheadline:
       "6 perguntas sobre o seu atendimento. No fim, o número que sua operação custa por mês.",
+    // Sem subheadline na tela de resultado: a da dobra fala "na sua equipe" e
+    // ficaria em cima do card de quem declarou 1 ou 2 pessoas. O card ja' traz
+    // a mensagem inteira. `undefined` de proposito.
+    resultSubheadline: undefined,
     note: "O que garantimos é encontrar e documentar a oportunidade. Não garantimos que você vá economizar as horas, porque isso depende da implementação, e essa parte não está na nossa mão.",
     microcopy: "6 perguntas, 2 minutos. O cálculo é gratuito.",
     sidebarNotes: [
@@ -129,6 +157,11 @@ const SHELL_COPY_BY_SLUG: Record<string, ShellCopy> = {
     contactLabel: "Para onde mandamos o seu resultado?",
     contactHelper:
       "Esse contato fica ligado ao diagnóstico e não autoriza disparos automáticos.",
+    // Menor que o default: com a headline longa da §2, o clamp antigo empurrava
+    // o quiz inteiro para baixo da dobra no desktop — e a pagina existe para a
+    // pessoa COMECAR a responder.
+    headlineClass: "text-[clamp(1.85rem,4vw,3.1rem)]",
+    guaranteeLink: { label: "Ver os termos da garantia", href: "#garantia" },
   },
 };
 
@@ -328,6 +361,7 @@ export default function SoulGeniaDiagnostic({
       <DiagnosticShell
         stateLabel={copy.loadingLabel}
         headline={copy.headline}
+        headlineClass={copy.headlineClass}
         subheadline={copy.loadingSubheadline}
       />
     );
@@ -338,6 +372,7 @@ export default function SoulGeniaDiagnostic({
       <DiagnosticShell
         stateLabel={copy.errorLabel}
         headline={copy.headline}
+        headlineClass={copy.headlineClass}
         subheadline={copy.loadingSubheadline}
       >
         <p className="mt-4 max-w-xl text-base leading-7 text-white/72">
@@ -355,6 +390,7 @@ export default function SoulGeniaDiagnostic({
     <DiagnosticShell
       stateLabel={copy.eyebrow}
       headline={copy.headline}
+      headlineClass={copy.headlineClass}
       subheadline={copy.subheadline}
       note={copy.note}
       microcopy={copy.microcopy}
@@ -432,6 +468,7 @@ export default function SoulGeniaDiagnostic({
 function DiagnosticShell({
   stateLabel,
   headline,
+  headlineClass,
   subheadline,
   note,
   microcopy,
@@ -439,7 +476,8 @@ function DiagnosticShell({
 }: {
   stateLabel: string;
   headline: string;
-  subheadline: string;
+  headlineClass: string;
+  subheadline?: string;
   note?: string;
   microcopy?: string;
   children?: React.ReactNode;
@@ -459,12 +497,16 @@ function DiagnosticShell({
             <p className="text-sm font-bold uppercase tracking-[0.18em] text-primary-light">
               {stateLabel}
             </p>
-            <h1 className="mt-4 text-[clamp(2.4rem,8vw,5.6rem)] font-display leading-[0.98] text-white">
+            <h1
+              className={`mt-4 ${headlineClass} font-display leading-[0.98] text-white`}
+            >
               {headline}
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-white/74">
-              {subheadline}
-            </p>
+            {subheadline ? (
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-white/74">
+                {subheadline}
+              </p>
+            ) : null}
             {note ? (
               <p className="mt-5 max-w-2xl text-sm leading-6 text-white/60">
                 {note}
@@ -680,7 +722,8 @@ function DiagnosticResult({
     <DiagnosticShell
       stateLabel={tone.label}
       headline={copy.headline}
-      subheadline={copy.subheadline}
+      headlineClass={copy.headlineClass}
+      subheadline={copy.resultSubheadline}
     >
       <section className="mt-10 rounded-xl border border-white/14 bg-[#fbfdfc] p-5 text-[#081314] shadow-[0_28px_90px_-62px_rgba(0,0,0,0.9)] sm:p-8">
         <div className="max-w-3xl">
@@ -783,6 +826,27 @@ function DiagnosticResult({
                 Voltar para a Soul Genia
               </a>
             )}
+
+            {/* Deck §6.1, link secundario. Sem pagina de termos da garantia e
+                sem campo de link no schema do config: e' ancora para o FAQ
+                desta mesma pagina (§9, id="garantia"). */}
+            {copy.guaranteeLink && result.route === "agendar_diagnostico" ? (
+              <a
+                href={copy.guaranteeLink.href}
+                onClick={() =>
+                  trackEvent("quiz_cta_clicked", {
+                    page: "soul_genia_diagnostic",
+                    route: result.route,
+                    destination: "garantia",
+                    path: window.location.pathname,
+                    ...getStoredUtm(),
+                  })
+                }
+                className="motion-press inline-flex min-h-13 items-center justify-center rounded-lg border border-[#cfdada] px-6 py-3 text-sm font-bold text-primary hover:border-primary-light"
+              >
+                {copy.guaranteeLink.label}
+              </a>
+            ) : null}
           </div>
         </div>
       </section>

@@ -63,6 +63,11 @@ test("GET config devolve os acentos ÍNTEGROS pelo HTTP (deck 2026-08-31)", asyn
     assert.equal(byId.avg_cost.options[0].label, "Até R$ 1.800");
     assert.equal(byId.ai_today.options[0].label, "Não");
     assert.equal(config.results.self_serve_genia.cta, "Conhecer a Gênia");
+    assert.equal(
+      config.results.self_serve_genia.title,
+      "responder cliente consome cerca de {{horas_mes}} horas por mês na sua operação."
+    );
+    assert.match(config.results.self_serve_genia.body, /Numa operação desse tamanho/);
     assert.match(config.results.agendar_diagnostico.title, /horas por mês respondendo cliente/);
     // A oferta paga e a garantia vivem na tela de resultado (deck §6.1).
     assert.match(config.results.agendar_diagnostico.body, /por R\$ 497/);
@@ -157,6 +162,32 @@ test("submit 1 pessoa → self_serve_genia apontando para /genia (mao unica)", a
     assert.equal(body.route, "self_serve_genia");
     assert.equal(body.routing_target, "https://soulgenia.com.br/genia");
     assert.ok(body.computed.horas_mes > 0);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+// Ratchet do deck §6.2 (corrigido 2026-09-01): a tela `self_serve_genia` recebe
+// operacoes de 1 E de 2 pessoas, entao NENHUMA string dela pode presumir
+// quantidade. "sozinho" estava errado para quem declarou 2; "sua equipe" estaria
+// errado para quem declarou 1. Este teste morde se qualquer um voltar.
+test("self_serve_genia nao presume quantidade de pessoas em nenhuma string", async () => {
+  const app = createApp({ repository: new MemoryRepository(), env: { CAPI_MODE: "disabled" } });
+  const server = app.listen(0);
+  try {
+    const response = await fetch(`${serverUrl(server)}/funil/diagnostico-ia-v1/config`);
+    const body = await response.json();
+    const tela = body.config.results.self_serve_genia;
+    const texto = [tela.title, tela.body, tela.cta].join(" ").toLowerCase();
+
+    for (const proibido of ["sozinho", "sozinha", "sozinho(a)", "sua equipe", "voce e a", "você e a"]) {
+      assert.ok(
+        !texto.includes(proibido),
+        `a tela self_serve_genia presume quantidade: "${proibido}"`
+      );
+    }
+    // Controle positivo: o teste esta mesmo olhando o texto da tela certa.
+    assert.ok(texto.includes("secretária de ia no seu próprio whatsapp"));
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }

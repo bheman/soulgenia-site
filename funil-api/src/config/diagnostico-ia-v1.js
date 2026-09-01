@@ -102,10 +102,13 @@ export const diagnosticoIaV1Config = {
         "semana na sua equipe, devolvemos 100% do valor.",
       cta: "Agendar a conversa de 20 min"
     },
+    // Esta tela atende 1 E 2 pessoas (o corte do degrau pago e' >= 3). Deck §6.2,
+    // corrigido em 2026-09-01: NENHUMA string aqui pode presumir quantidade de
+    // pessoas — nem "sozinho", nem "sua equipe".
     self_serve_genia: {
-      title: "você gasta cerca de {{horas_mes}} horas por mês respondendo cliente sozinho.",
+      title: "responder cliente consome cerca de {{horas_mes}} horas por mês na sua operação.",
       body:
-        "Para quem atende sozinho, o caminho mais rápido não é consultoria. É uma " +
+        "Numa operação desse tamanho, o caminho mais rápido não é consultoria. É uma " +
         "secretária de IA no seu próprio WhatsApp, que você testa hoje e não depende de " +
         "ninguém para instalar.",
       cta: "Conhecer a Gênia"
