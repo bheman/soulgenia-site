@@ -2,6 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import sql from "@/lib/db";
 
+/**
+ * VOCABULARIO DE EVENTOS — tres camadas que precisam andar JUNTAS:
+ *   1. `AnalyticsEvent` em lib/analytics.ts   (o que o cliente pode emitir)
+ *   2. este enum zod                          (o que a borda aceita)
+ *   3. o CHECK de `event_name` em db/migrations (o que o banco grava)
+ *
+ * Ate 2026-09-01 a camada 2 tinha 14 valores, a 3 tinha 8 e a 1 tinha 16. Os
+ * eventos de quiz passavam no zod, violavam o CHECK, e o erro era engolido por
+ * um catch que devolvia 202. Guarda que prende as tres:
+ * funil-api/test/analytics-event-vocabulary.test.js
+ */
 const EventSchema = z.object({
   event: z.enum([
     "landing_view",
@@ -18,6 +29,10 @@ const EventSchema = z.object({
     "quiz_submitted",
     "quiz_result_viewed",
     "quiz_cta_clicked",
+    // diagnostico-ia-v1 — emitidos pelo componente e declarados em
+    // lib/analytics.ts desde sempre, mas nunca adicionados aqui: davam 422.
+    "calculator_shown",
+    "schedule_click",
   ]),
   properties: z
     .object({
@@ -80,7 +95,17 @@ export async function POST(request: NextRequest) {
       )
     `;
   } catch (err) {
+    // NAO engolir. A versao anterior logava e devolvia 202 { accepted: true }:
+    // uma falha de escrita virava sucesso silencioso, e foi assim que os
+    // eventos de quiz ficaram meses sem gravar sem ninguem perceber.
+    // O unico chamador (lib/analytics.ts) usa sendBeacon/void fetch e ignora a
+    // resposta, entao o 500 nao quebra UX — ele aparece em log e monitoramento,
+    // que e' exatamente o ponto.
     console.error("[api/event] failed to persist landing event:", err);
+    return NextResponse.json(
+      { accepted: false, error: "persist_failed" },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ accepted: true }, { status: 202 });
