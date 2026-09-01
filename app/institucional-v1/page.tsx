@@ -42,6 +42,7 @@ export default function InstitutionalPreviewPage() {
         </Link>
         <nav className={styles.nav} aria-label="Navegação institucional">
           <a href="#produtos">Produtos</a>
+          <Link href="/diagnostico-ia">Diagnóstico de IA</Link>
           <a href="#empresa">A empresa</a>
         </nav>
         <a className={styles.navCta} href="#produtos">Conheça o portfólio <span>↘</span></a>
@@ -63,6 +64,21 @@ export default function InstitutionalPreviewPage() {
           </div>
         </div>
         <div className={styles.heroSignal} aria-hidden="true"><span>Gênia</span><span>GatewayPort</span><span>Mentora Beta</span></div>
+      </section>
+
+      {/* Ponto de entrada do Diagnóstico de IA. Copy literal do deck aprovado em
+          2026-08-31 (copy-deck-diagnostico-ia.md §2) — não improvisar texto aqui. */}
+      <section className={styles.offer} id="diagnostico">
+        <p className={styles.sectionLabel}>Diagnóstico de Produtividade com IA</p>
+        <Reveal className={styles.offerInner}>
+          <h2>Descubra onde sua empresa pode liberar pelo menos 5 horas por semana com IA — ou receba seu dinheiro de volta.</h2>
+          <div className={styles.offerCopy}>
+            <p>Uma entrevista de 45 minutos com um consultor sênior, um relatório priorizado em até 3 dias úteis, e uma call de revisão. Se não encontrarmos e documentarmos pelo menos 5 horas por semana na sua equipe, devolvemos 100% do valor.</p>
+            <p className={styles.offerNote}>O que garantimos é encontrar e documentar a oportunidade. Não garantimos que você vá economizar as horas, porque isso depende da implementação, e essa parte não está na nossa mão.</p>
+            <Link className={styles.offerCta} href="/diagnostico-ia">Calcular quanto meu atendimento custa <span>↗</span></Link>
+            <p className={styles.offerMicro}>6 perguntas, 2 minutos. O cálculo é gratuito.</p>
+          </div>
+        </Reveal>
       </section>
 
       <section className={styles.manifesto} id="empresa">
@@ -178,7 +194,7 @@ export default function InstitutionalPreviewPage() {
       <footer className={styles.footer}>
         <div className={styles.brand}><Image className={styles.mark} src="/images/soul-genia-profile-mark.png" alt="" width={40} height={40} /><span>Soul Gênia</span></div>
         <p>Inteligência artificial para o trabalho real.</p>
-        <nav aria-label="Links do rodapé"><a href="#produtos">Produtos</a><a href="#empresa">Empresa</a><Link href="/privacidade">Privacidade</Link></nav>
+        <nav aria-label="Links do rodapé"><a href="#produtos">Produtos</a><Link href="/diagnostico-ia">Diagnóstico de IA</Link><a href="#empresa">Empresa</a><Link href="/privacidade">Privacidade</Link></nav>
         <p>© {new Date().getFullYear()} Soul Gênia</p>
       </footer>
     </main>

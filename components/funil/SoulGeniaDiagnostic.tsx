@@ -42,18 +42,99 @@ const resultTone: Record<
     detail:
       "A Soul Genia trabalha com aprovacao humana e nao apoia disparos frios ou automacoes sensiveis sem controle.",
   },
-  // diagnostico-ia-v1:
+  // diagnostico-ia-v1 (rotas exclusivas deste funil — acentuadas):
   self_serve_genia: {
     label: "Caminho self-serve",
     detail:
-      "Para quem atende sozinho, o proximo passo e conhecer a Genia — a secretaria de IA no seu proprio WhatsApp.",
+      "Para quem atende sozinho, o próximo passo é conhecer a Gênia — a secretária de IA no seu próprio WhatsApp.",
   },
   agendar_diagnostico: {
     label: "Conversa de 20 minutos",
     detail:
-      "O proximo passo e uma conversa gratuita de 20 minutos sobre a sua operacao de atendimento. Sem compromisso.",
+      "O próximo passo é uma conversa gratuita de 20 minutos sobre a sua operação de atendimento. Sem compromisso.",
   },
 };
+
+/**
+ * Copy do SHELL por FUNIL. O componente e' compartilhado entre /diagnostico
+ * (soulgenia-v1) e /diagnostico-ia (diagnostico-ia-v1) — sem esta chave por
+ * slug, corrigir a promessa de um funil reescreveria o outro em silencio.
+ *
+ * O recorte diagnostico-ia-v1 vem do deck aprovado em 2026-08-31:
+ * workspaces/business/products/soul-genia/commercial/copy-deck-diagnostico-ia.md
+ */
+type ShellCopy = {
+  /** Olho do estado "quiz aberto". */
+  eyebrow: string;
+  loadingLabel: string;
+  errorLabel: string;
+  resultLabel: string;
+  headline: string;
+  subheadline: string;
+  /** Mostrada enquanto a config nao chegou (cold start medido > 15s). */
+  loadingSubheadline: string;
+  /** Linha de honestidade sob a promessa (opcional). */
+  note?: string;
+  /** Microcopy sob a dobra (opcional). */
+  microcopy?: string;
+  sidebarNotes: string[];
+  submittingLabel: string;
+  contactLabel: string;
+  contactHelper: string;
+};
+
+const DEFAULT_SHELL_COPY: ShellCopy = {
+  eyebrow: "Diagnostico Soul Genia",
+  loadingLabel: "Carregando diagnostico...",
+  errorLabel: "Diagnostico local indisponivel",
+  resultLabel: "Resultado do diagnostico",
+  headline: "Descubra onde uma secretaria inteligente pode aliviar sua rotina.",
+  subheadline:
+    "Responda algumas perguntas sobre WhatsApp, volume de mensagens e um fluxo real desta semana. O resultado orienta o melhor proximo passo: teste guiado, conteudo de preparo ou lista de interesse.",
+  loadingSubheadline:
+    "Responda algumas perguntas sobre WhatsApp, volume de mensagens e um fluxo real desta semana. O resultado orienta o melhor proximo passo: teste guiado, conteudo de preparo ou lista de interesse.",
+  sidebarNotes: [
+    "Sem promessa de autonomia total.",
+    "Aprovacao humana antes de mensagens externas.",
+    "Dados usados apenas para orientar o primeiro contato.",
+  ],
+  submittingLabel: "Enviando diagnostico...",
+  contactLabel: "Como a Soul Genia pode falar com voce?",
+  contactHelper:
+    "Esse contato fica ligado ao diagnostico e nao autoriza disparos automaticos.",
+};
+
+const SHELL_COPY_BY_SLUG: Record<string, ShellCopy> = {
+  "diagnostico-ia-v1": {
+    eyebrow: "Diagnóstico de Produtividade com IA",
+    loadingLabel: "Carregando seu diagnóstico",
+    errorLabel: "Diagnóstico local indisponível",
+    resultLabel: "Resultado do diagnóstico",
+    // A MESMA headline no carregamento e na dobra: durante o cold start o
+    // visitante lia a promessa do funil ANTIGO.
+    headline:
+      "Descubra onde sua empresa pode liberar pelo menos 5 horas por semana com IA — ou receba seu dinheiro de volta.",
+    subheadline:
+      "Uma entrevista de 45 minutos com um consultor sênior, um relatório priorizado em até 3 dias úteis, e uma call de revisão. Se não encontrarmos e documentarmos pelo menos 5 horas por semana na sua equipe, devolvemos 100% do valor.",
+    loadingSubheadline:
+      "6 perguntas sobre o seu atendimento. No fim, o número que sua operação custa por mês.",
+    note: "O que garantimos é encontrar e documentar a oportunidade. Não garantimos que você vá economizar as horas, porque isso depende da implementação, e essa parte não está na nossa mão.",
+    microcopy: "6 perguntas, 2 minutos. O cálculo é gratuito.",
+    sidebarNotes: [
+      "O cálculo usa só o que você responder.",
+      "Nada é enviado a ninguém sem você pedir.",
+      "Seus dados servem para esta conversa, e nada mais.",
+    ],
+    submittingLabel: "Enviando…",
+    contactLabel: "Para onde mandamos o seu resultado?",
+    contactHelper:
+      "Esse contato fica ligado ao diagnóstico e não autoriza disparos automáticos.",
+  },
+};
+
+function shellCopyFor(slug: string): ShellCopy {
+  return SHELL_COPY_BY_SLUG[slug] ?? DEFAULT_SHELL_COPY;
+}
 
 // O componente serve QUALQUER funil registrado no funil-api — o slug decide
 // perguntas, pontuacao e telas. Default preserva a pagina /diagnostico atual.
@@ -63,6 +144,7 @@ export default function SoulGeniaDiagnostic({
   slug?: string;
 } = {}) {
   const FUNNEL_SLUG = slug;
+  const copy = shellCopyFor(FUNNEL_SLUG);
   const [loadState, setLoadState] = useState<LoadState>({ status: "loading" });
   const [answers, setAnswers] = useState<FunnelAnswers>({});
   const [contact, setContact] = useState<FunnelContact>({
@@ -242,12 +324,22 @@ export default function SoulGeniaDiagnostic({
   ]);
 
   if (loadState.status === "loading") {
-    return <DiagnosticShell stateLabel="Carregando diagnostico..." />;
+    return (
+      <DiagnosticShell
+        stateLabel={copy.loadingLabel}
+        headline={copy.headline}
+        subheadline={copy.loadingSubheadline}
+      />
+    );
   }
 
   if (loadState.status === "error") {
     return (
-      <DiagnosticShell stateLabel="Diagnostico local indisponivel">
+      <DiagnosticShell
+        stateLabel={copy.errorLabel}
+        headline={copy.headline}
+        subheadline={copy.loadingSubheadline}
+      >
         <p className="mt-4 max-w-xl text-base leading-7 text-white/72">
           {loadState.message}
         </p>
@@ -256,11 +348,17 @@ export default function SoulGeniaDiagnostic({
   }
 
   if (result) {
-    return <DiagnosticResult result={result} contact={contact} />;
+    return <DiagnosticResult result={result} contact={contact} copy={copy} />;
   }
 
   return (
-    <DiagnosticShell stateLabel="Diagnostico Soul Genia">
+    <DiagnosticShell
+      stateLabel={copy.eyebrow}
+      headline={copy.headline}
+      subheadline={copy.subheadline}
+      note={copy.note}
+      microcopy={copy.microcopy}
+    >
       <div className="mt-8 grid gap-8 lg:grid-cols-[0.7fr_1fr] lg:items-start">
         <aside className="rounded-xl border border-white/12 bg-white/[0.06] p-5 text-white">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary-light">
@@ -276,9 +374,9 @@ export default function SoulGeniaDiagnostic({
             Pergunta {stepIndex + 1} de {questions.length}
           </p>
           <div className="mt-7 grid gap-3 text-sm text-white/68">
-            <p>Sem promessa de autonomia total.</p>
-            <p>Aprovacao humana antes de mensagens externas.</p>
-            <p>Dados usados apenas para orientar o primeiro contato.</p>
+            {copy.sidebarNotes.map((note) => (
+              <p key={note}>{note}</p>
+            ))}
           </div>
         </aside>
 
@@ -287,6 +385,7 @@ export default function SoulGeniaDiagnostic({
             question={currentQuestion}
             answers={answers}
             contact={contact}
+            copy={copy}
             onAnswer={handleAnswer}
             onContact={handleContact}
           />
@@ -318,7 +417,7 @@ export default function SoulGeniaDiagnostic({
               className="motion-press min-h-12 flex-1 rounded-lg bg-primary px-6 py-3 text-sm font-bold text-white shadow-[0_14px_46px_-24px_rgba(5,64,72,0.75)] hover:bg-[#073038] disabled:cursor-not-allowed disabled:opacity-45"
             >
               {submitting
-                ? "Enviando diagnostico..."
+                ? copy.submittingLabel
                 : isLastStep
                   ? "Ver meu resultado"
                   : "Continuar"}
@@ -332,9 +431,17 @@ export default function SoulGeniaDiagnostic({
 
 function DiagnosticShell({
   stateLabel,
+  headline,
+  subheadline,
+  note,
+  microcopy,
   children,
 }: {
   stateLabel: string;
+  headline: string;
+  subheadline: string;
+  note?: string;
+  microcopy?: string;
   children?: React.ReactNode;
 }) {
   return (
@@ -353,13 +460,21 @@ function DiagnosticShell({
               {stateLabel}
             </p>
             <h1 className="mt-4 text-[clamp(2.4rem,8vw,5.6rem)] font-display leading-[0.98] text-white">
-              Descubra onde uma secretaria inteligente pode aliviar sua rotina.
+              {headline}
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-white/74">
-              Responda algumas perguntas sobre WhatsApp, volume de mensagens e
-              um fluxo real desta semana. O resultado orienta o melhor proximo
-              passo: teste guiado, conteudo de preparo ou lista de interesse.
+              {subheadline}
             </p>
+            {note ? (
+              <p className="mt-5 max-w-2xl text-sm leading-6 text-white/60">
+                {note}
+              </p>
+            ) : null}
+            {microcopy ? (
+              <p className="mt-5 text-sm font-semibold text-white/72">
+                {microcopy}
+              </p>
+            ) : null}
           </div>
 
           {children}
@@ -373,22 +488,21 @@ function QuestionRenderer({
   question,
   answers,
   contact,
+  copy,
   onAnswer,
   onContact,
 }: {
   question: FunnelQuestion;
   answers: FunnelAnswers;
   contact: FunnelContact;
+  copy: ShellCopy;
   onAnswer: (question: FunnelQuestion, value: string) => void;
   onContact: (field: keyof FunnelContact, value: string | boolean) => void;
 }) {
   if (question.type === "contact") {
     return (
       <div>
-        <QuestionHeader
-          label="Como a Soul Genia pode falar com voce?"
-          helper="Esse contato fica ligado ao diagnostico e nao autoriza disparos automaticos."
-        />
+        <QuestionHeader label={copy.contactLabel} helper={copy.contactHelper} />
 
         <div className="mt-6 grid gap-4">
           <label className="grid gap-2 text-sm font-bold text-[#253d40]">
@@ -545,9 +659,11 @@ function ConsentCheckbox({
 function DiagnosticResult({
   result,
   contact,
+  copy,
 }: {
   result: FunnelSubmitResult;
   contact: FunnelContact;
+  copy: ShellCopy;
 }) {
   const tone = resultTone[result.route];
   const firstName = contact.name.trim().split(/\s+/)[0] || "Pronto";
@@ -561,11 +677,15 @@ function DiagnosticResult({
   const computed = result.computed ?? null;
 
   return (
-    <DiagnosticShell stateLabel={tone.label}>
+    <DiagnosticShell
+      stateLabel={tone.label}
+      headline={copy.headline}
+      subheadline={copy.subheadline}
+    >
       <section className="mt-10 rounded-xl border border-white/14 bg-[#fbfdfc] p-5 text-[#081314] shadow-[0_28px_90px_-62px_rgba(0,0,0,0.9)] sm:p-8">
         <div className="max-w-3xl">
           <p className="text-sm font-bold uppercase tracking-[0.18em] text-primary">
-            Resultado do diagnostico
+            {copy.resultLabel}
           </p>
           <h2 className="mt-4 text-3xl font-display leading-tight text-primary sm:text-5xl">
             {firstName}, {result.result.title}
@@ -577,7 +697,7 @@ function DiagnosticResult({
                   {new Intl.NumberFormat("pt-BR").format(computed.horas_mes)}h
                 </p>
                 <p className="mt-2 text-sm font-semibold text-[#607174]">
-                  por mes respondendo cliente
+                  por mês respondendo cliente
                 </p>
               </div>
               {computed.custo_mes != null ? (
@@ -590,7 +710,7 @@ function DiagnosticResult({
                     }).format(computed.custo_mes)}
                   </p>
                   <p className="mt-2 text-sm font-semibold text-[#607174]">
-                    de folha so em atendimento manual (estimativa)
+                    de folha só em atendimento manual (estimativa)
                   </p>
                 </div>
               ) : null}

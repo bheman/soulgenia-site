@@ -21,11 +21,24 @@ const contactOk = {
 // qualquer outra coisa (ou um ponto médio de faixa) quebra aqui.
 // ---------------------------------------------------------------------------
 
-test("calculadora: 2-3 pessoas × 3-4h = 2.5 × 3.5 × 22 = 193 horas/mes", () => {
-  const c = computeAttendanceCost({ attendants: "2-3", hours_per_day: "3-4", avg_cost: "2500-4000" });
-  assert.equal(c.horas_mes, 193); // 2.5 * 3.5 * 22 = 192.5 → 193
-  // custo = 192.5 * (3250/176) = 3554.6… → 3555
-  assert.equal(c.custo_mes, 3555);
+test("calculadora: 3-10 pessoas × 3-4h = 6 × 3.5 × 22 = 462 horas/mes", () => {
+  const c = computeAttendanceCost({ attendants: "3-10", hours_per_day: "3-4", avg_cost: "2500-4000" });
+  assert.equal(c.horas_mes, 462); // 6 * 3.5 * 22 = 462
+  // custo = 462 * (3250/176) = 8531.25 → 8531
+  assert.equal(c.custo_mes, 8531);
+});
+
+test("calculadora: a faixa NOVA de 2 pessoas tem ponto medio 2 (nao 2.5 da faixa antiga)", () => {
+  const c = computeAttendanceCost({ attendants: "2", hours_per_day: "3-4", avg_cost: "2500-4000" });
+  assert.equal(c.horas_mes, 154); // 2 * 3.5 * 22 = 154
+  assert.equal(c.custo_mes, 2844); // 154 * (3250/176) = 2843.75 → 2844
+});
+
+test("ratchet: as faixas ANTIGAS de attendants nao calculam mais nada", () => {
+  // "2-3" e "4-10" sairam do config em 2026-08-31. Se voltarem ao ATTENDANTS_MID
+  // por descuido, este teste morde.
+  assert.equal(computeAttendanceCost({ attendants: "2-3", hours_per_day: "3-4" }), null);
+  assert.equal(computeAttendanceCost({ attendants: "4-10", hours_per_day: "3-4" }), null);
 });
 
 test("calculadora: 1 pessoa × 1-2h = 1 × 1.5 × 22 = 33 horas/mes", () => {
@@ -42,14 +55,14 @@ test("ratchet negativo: a constante de dias uteis e 22 — o calculo DEPENDE del
 });
 
 test("sem faixa de custo → horas calculadas, custo null (nunca inventar salario)", () => {
-  const c = computeAttendanceCost({ attendants: "4-10", hours_per_day: "5-6" });
-  assert.equal(c.horas_mes, 847); // 7 × 5.5 × 22 = 846.9…
+  const c = computeAttendanceCost({ attendants: "3-10", hours_per_day: "5-6" });
+  assert.equal(c.horas_mes, 726); // 6 × 5.5 × 22 = 726
   assert.equal(c.custo_mes, null);
 });
 
 test("sem attendants ou horas → computed null (a tela nao mostra numero inventado)", () => {
   assert.equal(computeAttendanceCost({ hours_per_day: "3-4" }), null);
-  assert.equal(computeAttendanceCost({ attendants: "2-3" }), null);
+  assert.equal(computeAttendanceCost({ attendants: "3-10" }), null);
 });
 
 // ---------------------------------------------------------------------------
@@ -65,8 +78,21 @@ test("1 pessoa atendendo → self_serve_genia", () => {
   assert.equal(s.crm_status, "qualifying");
 });
 
-test("2-3, 4-10 e 10+ → agendar_diagnostico (crm qualified)", () => {
-  for (const attendants of ["2-3", "4-10", "10+"]) {
+// O CORTE DE ICP (decisao D2, 2026-08-31): o diagnostico pago comeca em >= 3
+// pessoas no atendimento. A faixa antiga "2-3" ficava dos dois lados da linha;
+// foi partida em "2" e "3-10". Os dois testes abaixo sao o ratchet dessa linha:
+// reverter routeDiagnosticoIaLead para a lista antiga derruba os dois.
+test("2 pessoas → self_serve_genia: ABAIXO do corte de ICP, nao vira lead pago", () => {
+  const s = scoreDiagnosticoIaLead({
+    answers: { attendants: "2", hours_per_day: "5-6", avg_cost: "1800-2500", ai_today: "chatgpt_pontual" },
+    contact: contactOk
+  });
+  assert.equal(s.route, "self_serve_genia");
+  assert.equal(s.crm_status, "qualifying");
+});
+
+test("3-10 e 10+ → agendar_diagnostico (crm qualified)", () => {
+  for (const attendants of ["3-10", "10+"]) {
     const s = scoreDiagnosticoIaLead({
       answers: { attendants, hours_per_day: "5-6", avg_cost: "1800-2500", ai_today: "chatgpt_pontual" },
       contact: contactOk
@@ -74,6 +100,24 @@ test("2-3, 4-10 e 10+ → agendar_diagnostico (crm qualified)", () => {
     assert.equal(s.route, "agendar_diagnostico", attendants);
     assert.equal(s.crm_status, "qualified");
   }
+});
+
+test("as faixas ANTIGAS nao roteiam mais para lugar nenhum (caem em nurture)", () => {
+  for (const attendants of ["2-3", "4-10"]) {
+    const s = scoreDiagnosticoIaLead({
+      answers: { attendants, hours_per_day: "5-6", avg_cost: "1800-2500", ai_today: "chatgpt_pontual" },
+      contact: contactOk
+    });
+    assert.equal(s.route, "nurture", attendants);
+  }
+});
+
+test("o scoring_version foi bumpado junto com a mudanca de faixa", () => {
+  const s = scoreDiagnosticoIaLead({
+    answers: { attendants: "3-10", hours_per_day: "5-6" },
+    contact: contactOk
+  });
+  assert.equal(s.scoring_version, "diagnostico-ia-v1-2026-08-31");
 });
 
 test("sem attendants → nurture", () => {
@@ -84,7 +128,7 @@ test("sem attendants → nurture", () => {
 
 test("desqualificador de conduta compartilhado morde igual ao funil antigo", () => {
   const s = scoreDiagnosticoIaLead({
-    answers: { attendants: "4-10", hours_per_day: "7+", other_text: "quero disparo em massa para lista comprada" },
+    answers: { attendants: "3-10", hours_per_day: "7+", other_text: "quero disparo em massa para lista comprada" },
     contact: contactOk
   });
   assert.equal(s.route, "hard_disqualified");
@@ -93,7 +137,7 @@ test("desqualificador de conduta compartilhado morde igual ao funil antigo", () 
 
 test("sem consentimento → hard_disqualified (mesma regra da casa)", () => {
   const s = scoreDiagnosticoIaLead({
-    answers: { attendants: "2-3", hours_per_day: "3-4" },
+    answers: { attendants: "3-10", hours_per_day: "3-4" },
     contact: { ...contactOk, consent_contact: false }
   });
   assert.equal(s.route, "hard_disqualified");

@@ -5,18 +5,18 @@
 // horas/mês e custo/mês do atendimento manual — que é a tela de resultado.
 //
 // Rotas:
-//   self_serve_genia     → 1 pessoa atendendo: o caminho é a página da Gênia.
-//   agendar_diagnostico  → 2+ pessoas: vale uma conversa de 20 min (grátis).
+//   self_serve_genia     → 1 ou 2 pessoas atendendo: o caminho é a Gênia.
+//   agendar_diagnostico  → 3+ pessoas: o corte de ICP da oferta paga (D2).
 //   nurture              → sem sinal suficiente para calcular.
 //   hard_disqualified    → regras de conduta compartilhadas (scoring-shared).
 
 import { findHardDisqualifiers } from "./scoring-shared.js";
 
-export const DIAGNOSTICO_IA_SCORING_VERSION = "diagnostico-ia-v1-2026-08-08";
+export const DIAGNOSTICO_IA_SCORING_VERSION = "diagnostico-ia-v1-2026-08-31";
 
 // Ponto médio de cada faixa. A calculadora é uma ESTIMATIVA declarada como tal
 // na tela — o meio da faixa erra menos que qualquer extremo.
-const ATTENDANTS_MID = { "1": 1, "2-3": 2.5, "4-10": 7, "10+": 12 };
+const ATTENDANTS_MID = { "1": 1, "2": 2, "3-10": 6, "10+": 12 };
 const HOURS_MID = { "1-2": 1.5, "3-4": 3.5, "5-6": 5.5, "7+": 8 };
 const COST_MID = { "ate-1800": 1600, "1800-2500": 2150, "2500-4000": 3250, "4000+": 5000 };
 
@@ -79,11 +79,13 @@ export function routeDiagnosticoIaLead({ answers, hardDisqualifiers }) {
     return "hard_disqualified";
   }
 
-  if (answers.attendants === "1") {
+  // Corte de ICP em >= 3 pessoas no atendimento (decisão D2, 2026-08-31). A
+  // faixa antiga "2-3" ficava dos DOIS lados dessa linha; virou "2" e "3-10".
+  if (answers.attendants === "1" || answers.attendants === "2") {
     return "self_serve_genia";
   }
 
-  if (["2-3", "4-10", "10+"].includes(answers.attendants)) {
+  if (["3-10", "10+"].includes(answers.attendants)) {
     return "agendar_diagnostico";
   }
 

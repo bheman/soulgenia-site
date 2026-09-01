@@ -14,3 +14,21 @@
 @media(max-width:900px){.heroSignal{display:none}.manifestoInner,.storiesIntro{grid-template-columns:1fr}.story,.gatewayStory{grid-template-columns:1fr;min-height:0}.gatewayStory .storyCopy{order:2}.gatewayStory .gatewayVisual{order:1}.storyCopy{max-width:none}.storyVisual{max-width:620px;margin-inline:auto}.productStories{padding-left:24px;padding-right:24px}.betaVisual{min-height:520px}}
 @media(max-width:560px){.productStories{padding:76px 16px}.storiesIntro{margin-bottom:46px;padding:0 4px}.storiesIntro h2{font-size:2.35rem}.story{gap:30px;padding:22px;border-radius:20px}.story+.story{margin-top:20px}.story h3{font-size:2.4rem}.storyCopy>p:not(.storyEyebrow){font-size:16px}.storyVisual{padding-top:16px}.auriaPortrait{max-height:470px;object-fit:cover;object-position:top}.floatingNote{width:52%;padding:11px}.floatingNote strong{font-size:11px}.floatingNote span{font-size:9px}.noteMorning{left:-1%;top:2%;width:48%}.noteApproval{right:-3%;bottom:4%}.gatewayVisual{transform:none;border-radius:14px}.gatewayStory:hover .gatewayVisual{transform:none}.browserChrome{height:34px}.browserChrome span{max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gatewayPulse{display:none}.betaVisual{min-height:440px}.betaDevice{width:88%;border-radius:28px}.betaDevice>img{border-radius:20px}.betaPrompt{right:-5%;left:3%;bottom:4%}.betaOrbit{inset:2%}.principleGrid>.reveal{height:auto}}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.floatingNote,.gatewayPulse,.betaOrbit{animation:none}.gatewayVisual,.gatewayStory:hover .gatewayVisual{transform:none}}
+
+/* Ponto de entrada do Diagnostico de IA na home. A pagina /diagnostico-ia
+   ficou 23 dias no ar sem NENHUM link a partir daqui — este bloco e' o
+   conserto de alcancabilidade, nao decoracao. Copy: copy-deck-diagnostico-ia.md §2. */
+.offer{padding:clamp(80px,9vw,120px) max(20px,calc((100vw - 1280px)/2));background:var(--primary);color:#fff}
+.offer .sectionLabel{color:var(--cyan-light)}
+.offerInner{display:grid;grid-template-columns:1.25fr 1fr;gap:7vw;align-items:start;margin-top:26px}
+.offer h2{margin:0;color:#fff;font-family:var(--font-days-one),var(--font-outfit),sans-serif;font-size:clamp(2.15rem,3.6vw,3.6rem);font-weight:400;letter-spacing:-.045em;line-height:1.04}
+.offerCopy>p{margin:0 0 20px;color:rgba(255,255,255,.76);font-size:17px;line-height:1.75}
+.offerNote{border-left:1px solid rgba(255,255,255,.22);padding-left:18px;font-size:15px!important;color:rgba(255,255,255,.58)!important}
+.offerCta{display:inline-flex;align-items:center;min-height:56px;margin-top:6px;padding:0 26px;border-radius:999px;background:var(--cyan);color:#fff;font-size:15px;font-weight:700;box-shadow:0 16px 44px -18px rgba(13,170,191,.8);transition:transform .2s,background .2s}
+.offerCta:hover{transform:translateY(-2px);background:var(--cyan-light)}
+.offerCta span{margin-left:18px}
+.offerMicro{margin:14px 0 0!important;font-size:13px!important;font-weight:600;color:rgba(255,255,255,.6)!important}
+.offer a:focus-visible{outline-color:#fff;box-shadow:0 0 0 5px var(--primary)}
+@media(max-width:1320px){.offer{padding-left:32px;padding-right:32px}}
+@media(max-width:900px){.offerInner{grid-template-columns:1fr;gap:26px}}
+@media(max-width:560px){.offer{padding-left:20px;padding-right:20px}.offerCta{width:100%;justify-content:center}}
